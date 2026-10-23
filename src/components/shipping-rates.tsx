@@ -1,0 +1,4 @@
+import { connection } from "next/server";
+import { getShippingConfig } from "@/lib/shipping-server";
+import { formatMXN } from "@/lib/orders";
+export async function ShippingRates() { await connection(); const config = await getShippingConfig(); return <section className="store-tile"><h2>Tarifas actuales</h2><p>Tarifa general: <strong>{formatMXN(config.base_cost)}</strong>.</p><p>{config.free_from === null ? "El envío se calcula según el estado de entrega." : `Envío gratis desde ${formatMXN(config.free_from)}.`}</p>{Object.entries(config.state_rates).length > 0 && <dl className="store-rate-list">{Object.entries(config.state_rates).sort(([a], [b]) => a.localeCompare(b, "es-MX")).map(([state, price]) => <div key={state}><dt>{state}</dt><dd>{formatMXN(price)}</dd></div>)}</dl>}<p>Los estados sin tarifa específica utilizan la general. Revisa el costo final en el checkout.</p></section>; }

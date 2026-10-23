@@ -1,0 +1,295 @@
+/* ========================================================
+   BANNER CÓSMICO
+   ======================================================== */
+.club-banner {
+  position: relative;
+  margin-bottom: 80px;
+  min-height: 205px;
+  padding: 38px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  border: 1px solid #8BA8C766;
+  border-radius: 18px;
+  background: radial-gradient(ellipse at 16% 20%, #8BA8C744, transparent 35%), radial-gradient(ellipse at 82% 68%, #344B8366, transparent 45%), linear-gradient(110deg, #14284A, #080D1A);
+}
+
+@keyframes nebula-breathe {
+  0%, 100% { transform: scale(0.96); opacity: 0.82; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes star-twinkle {
+  from { opacity: .28; transform: scale(.98); }
+  to { opacity: .72; transform: scale(1.02); }
+}
+
+.club-banner .eyebrow {
+  margin-bottom: 10px;
+}
+
+.club-banner h2 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+}
+
+.banner-star {
+  position: absolute;
+  right: 34%;
+  top: -31px;
+  font-size: 160px;
+  color: #D9E5F20a;
+}
+
+/* ========================================================
+   FOOTER PREMIUM Y MODERNO (MOON TCG STYLE)
+   ======================================================== */
+.site-footer {
+  width: 100%;
+  margin-top: auto;
+  border-top: 1px solid rgba(139, 168, 199, 0.2);
+  background: linear-gradient(180deg, rgba(8, 13, 26, 0.85) 0%, rgba(4, 7, 14, 0.98) 100%);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Barra superior de confianza */
+.footer-trust-strip {
+  border-bottom: 1px solid rgba(139, 168, 199, 0.12);
+  background: rgba(20, 40, 74, 0.25);
+}
+
+.footer-trust-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.footer-trust-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.footer-trust-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.footer-trust-text strong {
+  display: block;
+  font-size: 12px;
+  color: #D9E5F2;
+  margin-bottom: 3px;
+  font-weight: 700;
+}
+
+.footer-trust-text p {
+  margin: 0;
+  font-size: 11px;
+  color: #8BA8C7;
+  line-height: 1.45;
+}
+
+/* Envoltorio principal */
+.footer-main-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 52px 20px 32px;
+}
+
+.footer-nav-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: clamp(24px, 4vw, 56px);
+  margin-bottom: 48px;
+}
+
+/* Columna de Marca */
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-logo {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #D9E5F2;
+}
+
+.footer-logo span {
+  color: #8BA8C7;
+}
+
+.footer-brand-desc {
+  margin: 0;
+  font-size: 12px;
+  color: #8BA8C7;
+  line-height: 1.65;
+  max-width: 32ch;
+}
+
+.footer-whatsapp-card {
+  margin-top: 6px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(20, 40, 74, 0.4);
+  border: 1px solid rgba(139, 168, 199, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.footer-wa-dot {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #25D366;
+  box-shadow: 0 0 10px #25D366;
+}
+
+.footer-whatsapp-card strong {
+  font-size: 11px;
+  color: #D9E5F2;
+}
+
+.footer-whatsapp-card p {
+  margin: 0;
+  font-size: 10px;
+  color: #8BA8C7;
+}
+
+.footer-contact-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: #b8d5e8;
+  margin-top: 2px;
+  transition: color 140ms ease;
+}
+
+.footer-contact-link:hover {
+  color: #fff;
+}
+
+/* Columnas de Navegación */
+.footer-links-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-col-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 750;
+  color: #D9E5F2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.footer-links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.footer-link {
+  color: #8BA8C7;
+  font-size: 12px;
+  transition: all 160ms ease;
+  display: inline-block;
+}
+
+.footer-link:hover {
+  color: #b8d5e8;
+  transform: translateX(2px);
+}
+
+/* Barra inferior */
+.footer-bottom-bar {
+  padding-top: 24px;
+  border-top: 1px solid rgba(139, 168, 199, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-copy {
+  margin: 0;
+  font-size: 11px;
+  color: #71849b;
+}
+
+.footer-pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footer-currency-pill,
+.footer-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(20, 40, 74, 0.45);
+  border: 1px solid rgba(139, 168, 199, 0.18);
+  color: #c7dced;
+}
+
+.footer-status-pill {
+  color: #8BA8C7;
+}
+
+/* --------------------------------------------------------
+   RESPONSIVIDAD DEL FOOTER
+   -------------------------------------------------------- */
+@media (max-width: 960px) {
+  .footer-trust-inner {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  .footer-nav-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-trust-inner {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .footer-nav-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .footer-main-wrap {
+    padding-top: 36px;
+  }
+  .footer-bottom-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

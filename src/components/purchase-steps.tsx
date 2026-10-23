@@ -1,0 +1,2 @@
+import Link from "next/link";
+export function PurchaseSteps({ step }: { step: "cart" | "checkout" | "confirmation" }) { return <nav className="store-progress" aria-label="Pasos de tu compra"><Link href="/carrito" aria-current={step === "cart" ? "step" : undefined}>1. Carrito</Link><span>→</span><span aria-current={step === "checkout" ? "step" : undefined}>2. Datos y envío</span><span>→</span><span aria-current={step === "confirmation" ? "step" : undefined}>3. Confirmación y pago</span></nav>; }
