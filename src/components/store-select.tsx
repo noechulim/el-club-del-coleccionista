@@ -14,7 +14,7 @@ function textContent(node: ReactNode): string {
 function choicesFrom(children: ReactNode): Choice[] {
   return Children.toArray(children).flatMap((child): Choice[] => {
     if (!isValidElement<{ children?: ReactNode; value?: string; disabled?: boolean }>(child)) return [];
-    if (child.type === Fragment) return choicesFrom(child.props.children);
+    if (child.type === Fragment || child.type === "optgroup") return choicesFrom(child.props.children);
     if (child.type !== "option") return [];
     const label = textContent(child.props.children);
     return [{ value: String(child.props.value ?? label), label, disabled: Boolean(child.props.disabled) }];

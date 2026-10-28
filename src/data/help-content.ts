@@ -3,7 +3,6 @@ export const faqs = [
   ["¿Cómo realizo el pago?", "Después de confirmar el pedido verás las instrucciones de transferencia. Sube tu comprobante desde la confirmación o, si compraste con una cuenta, desde Mis pedidos. La tienda revisa el comprobante antes de confirmar el pago."],
   ["¿Cuánto cuesta el envío?", "Consulta las tarifas actuales en la sección Envíos. El costo se calcula según el estado de entrega y el importe de la compra; verás el total antes de confirmar."],
   ["¿Cómo sé que mi pedido ya fue enviado?", "Consulta Rastrea tu pedido o Mis pedidos. Cuando la tienda registre el envío aparecerán la paquetería y el número de guía. Los avisos por correo complementan este seguimiento."],
-  ["¿Cómo funcionan las preventas?", "Reservas una unidad de los cupos publicados y pagas el total del pedido. La fecha de lanzamiento es estimada. Si tu pedido incluye productos disponibles y preventas, se envía junto cuando todos estén disponibles. Puedes hacer pedidos separados si necesitas envíos independientes."],
   ["¿Qué significa Comprobante enviado?", "Recibimos tu archivo, pero el pago todavía está en revisión. El estado cambia a Pago confirmado cuando la tienda lo valida."],
   ["¿Puedo cambiar mi dirección después de comprar?", "Escríbenos desde Contacto con tu número de pedido lo antes posible. Editar una dirección guardada no cambia la dirección de un pedido ya registrado."],
   ["¿Qué hago si recibí un producto incorrecto o dañado?", "Conserva el empaque y las evidencias del producto recibido. Abre una consulta de Cambio o devolución con tu número de pedido para revisar el caso."],
@@ -14,7 +13,6 @@ export const helpPages = {
   envios: { title: "Envíos", intro: "Consulta cómo pasa tu pedido de nuestra tienda a tu colección.", sections: [
     ["Costo de envío", "Las tarifas vigentes se muestran arriba. El envío se calcula según el estado de entrega; los descuentos por importe de compra se aplican automáticamente. El costo definitivo aparece antes de confirmar el pedido."],
     ["Preparación y seguimiento", "El pedido se prepara después de confirmar el pago. Cuando se registra el envío, podrás consultar la paquetería y la guía en Rastrea tu pedido o en tu cuenta. La fecha de entrega depende de la paquetería y del destino; no se muestra una fecha garantizada antes del despacho."],
-    ["Pedidos con preventa", "Se despachan cuando todos sus productos estén disponibles. Las fechas de lanzamiento son estimadas y pueden cambiar. Si necesitas recibir antes los productos disponibles, realiza pedidos separados."],
     ["Datos de entrega", "Revisa calle, número exterior, colonia, municipio, estado y código postal antes de confirmar. Para solicitar cambios en un pedido existente, contacta a la tienda con su número de pedido."],
   ] },
   "cambios-y-devoluciones": { title: "Cambios y devoluciones", intro: "Te ayudamos a revisar cualquier incidencia con tu compra.", sections: [
@@ -31,7 +29,6 @@ export const helpPages = {
   "terminos-y-condiciones": { title: "Condiciones de compra", intro: "Cómo se registra y se atiende tu pedido en El Club del Coleccionista.", sections: [
     ["Productos y precios", "Los precios se muestran en pesos mexicanos (MXN). Revisa descripción, idioma, condición y contenido antes de comprar. Los precios y existencias se vuelven a validar al confirmar el pedido. Un artículo en el carrito no constituye una reserva."],
     ["Pedido y pago", "La confirmación registra el pedido como pendiente de pago y reserva las unidades. El pago se realiza por transferencia y la tienda revisa el comprobante. Subir un comprobante no confirma por sí solo la recepción del dinero."],
-    ["Preventas", "Los productos marcados como preventa corresponden a unidades reservables de un próximo lanzamiento. El pago cubre el total. Las fechas son estimadas y el pedido se despacha cuando todos sus artículos están disponibles."],
     ["Comunicación y atención", "Conserva tu número de pedido para consultar el estado. Para incidencias de pago, envío, cambios o cancelación, utiliza Contacto. La tienda revisa las solicitudes y comunica los pasos correspondientes."],
   ] },
 } as const;

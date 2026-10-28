@@ -125,16 +125,8 @@ export function TrackingForm() {
           ) : (
             <div className="tracking-cancelled-banner">
               <strong>Este pedido fue cancelado.</strong>
-              <p>Si tienes alguna consulta sobre este pedido o deseas realizar uno nuevo, escríbenos a través de nuestro formulario de contacto o WhatsApp.</p>
+              <p>{order.cancellation_reason === "payment_timeout" ? "No recibimos el comprobante dentro de las 24 horas. El pedido se canceló automáticamente y las piezas volvieron al inventario." : "Si tienes alguna consulta sobre este pedido o deseas realizar uno nuevo, escríbenos a través de nuestro formulario de contacto."}</p>
             </div>
-          )}
-
-          {order.contains_preorder && order.status !== "shipped" && order.status !== "cancelled" && (
-            <p className="store-notice tracking-preorder-notice">
-              {order.preorders_ready
-                ? "Las piezas de preventa ya arribaron a nuestra sucursal. Continuamos con el empaque y preparación de tu entrega."
-                : "Este pedido incluye productos en preventa. El envío completo se despachará en cuanto todas las piezas estén disponibles."}
-            </p>
           )}
 
           {/* Tarjeta de Paquetería y Rastreo Directo */}

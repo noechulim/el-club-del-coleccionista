@@ -6,12 +6,13 @@ import { SiteFooter } from "@/components/site-footer";
 import { getShippingConfig } from "@/lib/shipping-server";
 import { getPaymentDetails } from "@/lib/payment-details";
 import { CheckoutForm } from "./checkout-form";
-import { createSupabaseServerClient, hasSupabaseConfig } from "@/lib/supabase/server";
+import { createSupabaseServerClient, hasSupabaseConfig, getSessionUser } from "@/lib/supabase/server";
 import type { CustomerAddress } from "@/lib/addresses";
 import "../styles/checkout.css";
+import { PagePlaceholder } from "@/components/page-shell";
 
 export default function CheckoutPage() {
-  return <><SiteHeader /><Suspense fallback={null}><CheckoutContent /></Suspense><SiteFooter /></>;
+  return <><SiteHeader /><Suspense fallback={<PagePlaceholder />}><CheckoutContent /></Suspense><SiteFooter /></>;
 }
 
 async function CheckoutContent() {
@@ -22,7 +23,7 @@ async function CheckoutContent() {
   if (hasSupabaseConfig()) {
     try {
       const supabase = await createSupabaseServerClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getSessionUser(supabase);
       if (user) {
         const [{ data: profile }, { data: addressData }] = await Promise.all([
           supabase.from("profiles").select("first_name, last_name").eq("id", user.id).maybeSingle(),

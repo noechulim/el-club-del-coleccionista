@@ -3,14 +3,15 @@ import { connection } from "next/server";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { createSupabaseServerClient, hasSupabaseConfig } from "@/lib/supabase/server";
+import { createSupabaseServerClient, hasSupabaseConfig, getSessionUser } from "@/lib/supabase/server";
 import { AdminNav } from "@/components/admin-nav";
 import { ProductManager } from "./product-manager";
 import type { Product } from "@/lib/products";
 import "../../styles/admin-products.css";
+import { PagePlaceholder } from "@/components/page-shell";
 
 export default function AdminProductsPage() {
-  return <Suspense fallback={null}><AdminProductsContent /></Suspense>;
+  return <><SiteHeader /><main className="admin-page"><header className="admin-heading"><div><p className="admin-eyebrow">EL CLUB DEL COLECCIONISTA</p><h1>Administrar productos</h1><p>Agrega y actualiza los artículos del catálogo en inglés.</p></div><Link href="/">Volver a la tienda</Link></header><AdminNav /><Suspense fallback={<PagePlaceholder />}><AdminProductsContent /></Suspense></main><SiteFooter /></>;
 }
 
 async function AdminProductsContent() {
@@ -21,7 +22,7 @@ async function AdminProductsContent() {
     message = "Configura Supabase en .env.local para administrar el catálogo.";
   } else {
     const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser(supabase);
     const { data: isAdmin } = user ? await supabase.rpc("is_store_admin") : { data: false };
     if (!user) message = "Inicia sesión con tu cuenta para administrar productos.";
     else if (!isAdmin) message = "Tu cuenta aún no tiene permisos de administración.";
@@ -32,5 +33,5 @@ async function AdminProductsContent() {
     }
   }
 
-  return <><SiteHeader /><main className="admin-page"><header className="admin-heading"><div><p className="admin-eyebrow">EL CLUB DEL COLECCIONISTA</p><h1>Administrar productos</h1><p>Agrega y actualiza los artículos del catálogo en inglés.</p></div><Link href="/">Volver a la tienda</Link></header><AdminNav />{message ? <section className="admin-notice">{message}</section> : <ProductManager products={products} />}</main><SiteFooter /></>;
+  return <div className="route-content-entrance">{message ? <section className="admin-notice">{message}</section> : <ProductManager products={products} />}</div>;
 }

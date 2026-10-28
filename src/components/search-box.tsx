@@ -9,7 +9,7 @@ export function SearchBox({ initialQuery = "" }: { initialQuery?: string }) {
   const params = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const inCatalog = pathname === "/catalogo" || pathname === "/ofertas" || pathname === "/preventas" || pathname.startsWith("/categorias/") || pathname.startsWith("/expansiones/");
+  const inCatalog = pathname === "/catalogo" || pathname === "/ofertas" || pathname.startsWith("/categorias/") || pathname.startsWith("/expansiones/");
   const [isOpen, setIsOpen] = useState(inCatalog && params.has("q"));
   const query = inCatalog ? params.get("q") || "" : draft;
   const inputRef = useRef<HTMLInputElement>(null);

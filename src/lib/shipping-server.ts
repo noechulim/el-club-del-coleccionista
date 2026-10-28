@@ -1,7 +1,11 @@
 import "server-only";
+import { cacheLife, cacheTag } from "next/cache";
 import { createPublicSupabaseClient } from "./products-server";
 import { defaultShipping, type ShippingConfig } from "./shipping";
 export async function getShippingConfig(): Promise<ShippingConfig> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("shipping");
   const db = createPublicSupabaseClient();
   if (!db) return defaultShipping;
   const { data, error } = await db.from("shipping_settings").select("base_cost, free_from, state_rates").eq("id", 1).maybeSingle();

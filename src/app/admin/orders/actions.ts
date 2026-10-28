@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { OrderStatus } from "@/lib/orders";
 import { sendOrderEmail } from "@/lib/order-email";
@@ -36,7 +36,7 @@ export async function updateOrder(_previous: OrderActionState, formData: FormDat
     p_tracking_number: trackingNumber,
   });
   if (error) {
-    return { error: error.message.includes("preorders_not_ready") ? "Confirma primero que llegaron todos los productos de preventa." : error.message.includes("terminal_order_status")
+    return { error: error.message.includes("terminal_order_status")
       ? "Un pedido cancelado o enviado no puede regresar a otro estado."
       : error.message.includes("tracking_required")
         ? "Agrega el número de guía antes de marcar el pedido como enviado."
@@ -44,6 +44,7 @@ export async function updateOrder(_previous: OrderActionState, formData: FormDat
   }
   revalidatePath("/admin/orders");
   revalidatePath("/cuenta");
+  updateTag("products");
   const shouldNotify = order.status !== status || (status === "shipped" && (order.shipping_carrier !== carrier || order.tracking_number !== trackingNumber));
   if (!shouldNotify) return { message: "Pedido actualizado. No hubo cambios en el estado ni en los datos de envío." };
 
@@ -60,12 +61,4 @@ export async function updateOrder(_previous: OrderActionState, formData: FormDat
   if (emailResult === "not_configured") return { message: "Pedido actualizado.", warning: "No se envió el correo: configura RESEND_API_KEY y ORDER_EMAIL_FROM." };
   if (emailResult === "failed") return { message: "Pedido actualizado.", warning: "No se pudo enviar el correo. El pedido sí quedó actualizado; revisa la configuración del proveedor." };
   return { message: "Pedido actualizado y aviso enviado al cliente." };
-}
-
-export async function releasePreorder(_previous: OrderActionState, formData: FormData): Promise<OrderActionState> {
-  const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.rpc("admin_release_preorder", { p_order_id: String(formData.get("id") || "") });
-  if (error) return { error: "No se pudo liberar la preventa. Revisa tus permisos y el estado del pedido." };
-  revalidatePath("/admin/orders"); revalidatePath("/cuenta");
-  return { message: "Unidades recibidas. Ya puedes preparar y enviar el pedido." };
 }

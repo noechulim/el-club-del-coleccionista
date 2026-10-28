@@ -114,3 +114,7 @@ Consulta FLUJO_TIENDA.md para el mapa de pantallas, la operación del catálogo,
 Ejecuta 202610230007_shipping_settings.sql después de la 006. En /admin/envios configura la tarifa general, excepciones por estado y el importe para envío gratuito (vacío lo desactiva). La función del checkout calcula el costo con estas tarifas en la base de datos y conserva los precios de pedidos anteriores. La página /envios y el checkout consultan la misma configuración.
 
 Para activar esta entrega de una sola vez, puedes usar supabase/ACTIVAR_FLUJO_TIENDA.sql: reúne las migraciones 003 a 007 y requiere que las anteriores ya estén aplicadas.
+
+## 17. Cancelar pedidos sin comprobante después de 24 horas
+
+En Supabase, abre **Integrations > Cron** y habilita la extensión `pg_cron`. Después ejecuta `supabase/migrations/202610270002_auto_cancel_unpaid_orders.sql` en SQL Editor. La migración programa una revisión cada minuto: cancela pedidos que continúan en `pending_payment` 24 horas después de su creación y devuelve sus unidades al inventario. También impide subir el comprobante después del límite. Los pedidos cuyo comprobante ya se recibió pasan a revisión manual y no se cancelan automáticamente. Confirma en **Integrations > Cron > Jobs** que aparezca `cancel-expired-unpaid-orders` y revisa su historial para comprobar las ejecuciones.

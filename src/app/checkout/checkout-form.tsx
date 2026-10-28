@@ -100,10 +100,9 @@ export function CheckoutForm({ initialCustomer, initialAddresses = [], paymentDe
 
     <aside className="checkout-summary">
       <p className="cart-eyebrow">RESUMEN</p><h2>Tu pedido</h2>
-      <div className="checkout-line-items">{items.map(({ product, quantity }) => <div key={product.id}><span>{product.name}{product.is_preorder ? " · Preventa" : ""} <small>× {quantity}</small></span><strong>{money(Number(product.price_mxn) * quantity)}</strong></div>)}</div>
+      <div className="checkout-line-items">{items.map(({ product, quantity }) => <div key={product.id}><span>{product.name} <small>× {quantity}</small></span><strong>{money(Number(product.price_mxn) * quantity)}</strong></div>)}</div>
       <div className="checkout-totals"><div><span>Productos</span><strong>{money(subtotal)}</strong></div><div><span>Envío</span><strong>{shipping ? money(shipping) : "Gratis"}</strong></div><div className="checkout-grand-total"><span>Total</span><strong>{money(subtotal + shipping)}</strong></div></div>
       <p className="checkout-shipping-hint">{shippingConfig.free_from === null ? "El envío depende de tu estado de entrega." : `Envío gratis desde ${money(shippingConfig.free_from)}.`} {!address.state && "Selecciona tu estado para ver la tarifa de entrega."}</p>
-      {items.some(({ product }) => product.is_preorder) && <p className="store-notice">Tu pedido incluye preventas. El pago cubre el total y el envío se realizará cuando todos los productos estén disponibles. Las fechas de lanzamiento son estimadas.</p>}
       <p className="checkout-payment-note">Al continuar puedes consultar nuestras <Link href="/terminos-y-condiciones">condiciones de compra</Link>, <Link href="/envios">información de envíos</Link> y <Link href="/aviso-de-privacidad">privacidad</Link>.</p>
       <input type="hidden" name="items" value={JSON.stringify(items.map(({ product, quantity }) => ({ product_id: product.id, quantity })))} />
       {state.error && <p className="checkout-error" role="alert">{state.error}</p>}

@@ -35,3 +35,17 @@ export async function createSupabaseServerClient() {
     },
   });
 }
+
+type ServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+
+/** Usuario de la sesión leído del token (verificado localmente), sin consultar a Supabase Auth en cada página. Las acciones siguen usando getUser(). */
+export async function getSessionUser(supabase: ServerClient) {
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  if (!claims?.sub) return null;
+  return {
+    id: claims.sub,
+    email: typeof claims.email === "string" ? claims.email : null,
+    user_metadata: (claims.user_metadata ?? {}) as Record<string, unknown>,
+  };
+}

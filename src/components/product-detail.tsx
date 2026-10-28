@@ -52,7 +52,6 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
               aria-label={"Ampliar imagen de " + product.name}
             >
               <span className="product-detail-tag">{categoryLabels[product.category]}</span>
-              {product.is_preorder && <span className="product-preorder-badge">Preventa</span>}
               {isSale && <span className="product-sale-badge">-{discount}%</span>}
 
               {/* Contenedor de la carta con proporciones reales */}
@@ -153,29 +152,10 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
             <div className={`product-stock-status ${available === 0 ? "is-sold-out" : ""}`}>
               <span className="status-dot" aria-hidden="true" />
               <strong>
-                {available > 0
-                  ? product.is_preorder
-                    ? `${available} cupos disponibles en preventa`
-                    : `${available} unidades disponibles en inventario`
-                  : "Agotado por el momento"}
+                {available > 0 ? `${available} unidades disponibles en inventario` : "Agotado por el momento"}
               </strong>
             </div>
           </div>
-
-          {product.is_preorder && (
-            <div className="product-preorder-callout">
-              <div className="preorder-callout-icon" aria-hidden="true">⏱</div>
-              <div>
-                <strong>Artículo en preventa garantizada</strong>
-                <p>
-                  {product.preorder_release_date
-                    ? `Lanzamiento estimado: ${new Intl.DateTimeFormat("es-MX", { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${product.preorder_release_date}T12:00:00Z`))}. `
-                    : ""}
-                  Tu compra reserva la pieza. El despacho se realiza en cuanto arriben las existencias.
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Selector de cantidad y botones de compra */}
           <div className="product-action-block">
@@ -215,9 +195,7 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                     ? "Agotado"
                     : remaining < 1
                       ? "En tu carrito"
-                      : product.is_preorder
-                        ? "Reservar en carrito"
-                        : "Agregar al carrito"}
+                      : "Agregar al carrito"}
                 </span>
               </button>
 

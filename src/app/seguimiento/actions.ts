@@ -4,14 +4,13 @@ import { createSupabaseServerClient, hasSupabaseConfig } from "@/lib/supabase/se
 import type { OrderStatus } from "@/lib/orders";
 
 export type GuestOrderResult = {
-  contains_preorder?: boolean;
-  preorders_ready?: boolean;
   order_number: string;
   status: OrderStatus;
   total: number;
   created_at: string;
   shipping_carrier: string;
   tracking_number: string;
+  cancellation_reason?: string | null;
   items: { product_name: string; set_name: string; quantity: number }[];
 };
 

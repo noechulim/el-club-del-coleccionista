@@ -1,7 +1,7 @@
 "use server";
 
 import { hasSupabaseConfig, createSupabaseServerClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { randomBytes, randomUUID } from "node:crypto";
 import { sendOrderEmail } from "@/lib/order-email";
 
@@ -94,6 +94,7 @@ export async function placeOrder(_previous: CheckoutState, formData: FormData): 
 
   const order = Array.isArray(data) ? data[0] : data;
   if (!order?.order_number) return { error: "Supabase no devolvió la confirmación del pedido." };
+  updateTag("products");
 
   const emailResult = await sendOrderEmail({
     to: customer.email,
@@ -139,6 +140,7 @@ export async function uploadPaymentProof(_previous: ProofUploadState, formData: 
   const { error } = await supabase.rpc("register_payment_proof", { p_order_number: orderNumber, p_proof_token: proofToken, p_file_path: path });
   if (error) {
     await supabase.storage.from("payment-proofs").remove([path]);
+    if (error.message.includes("payment_deadline_expired")) return { error: "El plazo de 24 horas terminó. El pedido se canceló y sus unidades regresaron al inventario." };
     return { error: "No se pudo asociar el comprobante. El pedido podría haber cambiado de estado." };
   }
   revalidatePath("/cuenta");

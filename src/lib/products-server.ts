@@ -1,11 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
+import { cacheLife, cacheTag } from "next/cache";
 import type { Product } from "@/lib/products";
 
 const productFields = "*";
 const legacyProductFields = "id, slug, name, category, set_name, description, language, price_mxn, stock, image_url, is_active";
 
 function withCatalogDefaults(rows: unknown[]): Product[] {
-  return rows.map((row) => ({ compare_at_price_mxn: null, is_preorder: false, preorder_release_date: null, ...(row as Product) }));
+  return rows.map((row) => ({ compare_at_price_mxn: null, ...(row as Product) }));
 }
 
 export function createPublicSupabaseClient() {
@@ -18,6 +19,9 @@ export function createPublicSupabaseClient() {
 }
 
 export async function getActiveProducts(): Promise<Product[] | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products");
   const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
   const { data, error } = await supabase
@@ -34,6 +38,9 @@ export async function getActiveProducts(): Promise<Product[] | null> {
 }
 
 export async function getActiveProductBySlug(slug: string): Promise<Product | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products");
   const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
   const { data, error } = await supabase
@@ -52,6 +59,9 @@ export async function getActiveProductBySlug(slug: string): Promise<Product | nu
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("products");
   const supabase = createPublicSupabaseClient();
   if (!supabase) return [];
   const { data, error } = await supabase

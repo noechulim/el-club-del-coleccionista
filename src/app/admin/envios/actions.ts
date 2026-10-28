@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { getAdminAccess } from "@/lib/admin-access";
 import { mexicanStates } from "@/lib/shipping";
 type ShippingState = { error?: string; message?: string };
@@ -15,5 +15,6 @@ export async function saveShipping(_previous: ShippingState, formData: FormData)
   const { error } = await db.rpc("admin_save_shipping", { p_base_cost: base, p_free_from: free, p_state_rates: rates });
   if (error) return { error: "No pudimos guardar las tarifas. Comprueba que aplicaste 202610230007_shipping_settings.sql." };
   revalidatePath("/", "layout");
+  updateTag("shipping");
   return { message: "Tarifas guardadas. Se aplicarán a pedidos nuevos." };
 }

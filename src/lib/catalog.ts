@@ -12,8 +12,8 @@ export const catalogCategories = [
   { slug: "cartas-calificadas", label: "Cartas calificadas", category: "graded", type: "" },
   { slug: "accesorios", label: "Accesorios", category: "accessory", type: "" },
 ];
-export type CatalogFilters = { category: string; type: string; collection: string; minPrice: string; maxPrice: string; available: boolean; preorder: boolean; offer: boolean };
-export const emptyFilters: CatalogFilters = { category: "", type: "", collection: "", minPrice: "", maxPrice: "", available: false, preorder: false, offer: false };
+export type CatalogFilters = { category: string; type: string; collection: string; minPrice: string; maxPrice: string; available: boolean; offer: boolean };
+export const emptyFilters: CatalogFilters = { category: "", type: "", collection: "", minPrice: "", maxPrice: "", available: false, offer: false };
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es-MX").trim();
 export function filterProducts(products: Product[], filters: CatalogFilters, query: string, sort: string) {
   const terms = normalizeSearch(query).split(/\s+/).filter(Boolean);
@@ -26,7 +26,6 @@ export function filterProducts(products: Product[], filters: CatalogFilters, que
       && (filters.minPrice === "" || Number(product.price_mxn) >= Number(filters.minPrice))
       && (filters.maxPrice === "" || Number(product.price_mxn) <= Number(filters.maxPrice))
       && (!filters.available || product.stock > 0)
-      && (!filters.preorder || product.is_preorder)
       && (!filters.offer || Number(product.compare_at_price_mxn) > Number(product.price_mxn));
   });
   if (sort === "price-asc") result.sort((a, b) => a.price_mxn - b.price_mxn);

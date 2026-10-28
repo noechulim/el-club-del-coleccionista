@@ -19,7 +19,7 @@
 .eyebrow {
   margin: 0 0 20px;
   color: var(--purple-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.18em;
 }
@@ -80,14 +80,14 @@
 }
 
 .button-primary {
-  background: #344B83;
-  color: white;
-  box-shadow: 0 10px 30px #344B8355;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 10px 30px rgba(184, 213, 232, 0.25);
 }
 
 .button-primary:hover {
-  background: #8BA8C7;
-  box-shadow: 0 0 25px rgba(139, 168, 199, 0.4);
+  background: var(--accent-strong);
+  box-shadow: 0 0 25px rgba(184, 213, 232, 0.4);
 }
 
 .button-primary span {
@@ -105,13 +105,13 @@
 .button-quiet:hover {
   border-color: var(--purple-2);
   background: var(--surface-2);
-  box-shadow: 0 0 20px rgba(122, 123, 179, 0.18);
+  box-shadow: 0 0 20px rgba(139, 168, 199, 0.18);
 }
 
 .hero-footnote {
   margin-top: 40px;
   color: #D9E5F2;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   font-weight: 700;
 }

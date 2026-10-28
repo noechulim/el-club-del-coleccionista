@@ -1,8 +1,6 @@
 export type OrderStatus = "pending_payment" | "proof_submitted" | "payment_confirmed" | "preparing" | "shipped" | "cancelled";
 
 export type OrderItem = {
-  is_preorder?: boolean;
-  preorder_release_date?: string | null;
   product_name: string;
   set_name: string;
   language: string;
@@ -12,8 +10,6 @@ export type OrderItem = {
 };
 
 export type CustomerOrder = {
-  contains_preorder?: boolean;
-  preorders_ready?: boolean;
   id: string;
   order_number: string;
   status: OrderStatus;
@@ -24,6 +20,7 @@ export type CustomerOrder = {
   created_at_label: string;
   shipping_carrier: string | null;
   tracking_number: string | null;
+  cancellation_reason?: string | null;
   proof_upload_token?: string | null;
   order_items: OrderItem[];
 };

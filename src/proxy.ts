@@ -28,6 +28,7 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+// Solo las rutas que usan sesión pasan por el proxy; el catálogo público se sirve sin esperar a Supabase Auth.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/cuenta/:path*", "/admin/:path*", "/checkout/:path*", "/pedido/:path*", "/auth/:path*", "/seguimiento/:path*", "/contacto/:path*"],
 };

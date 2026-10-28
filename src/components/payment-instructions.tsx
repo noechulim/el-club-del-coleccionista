@@ -89,7 +89,7 @@ export function PaymentInstructions({
         </div>
         <div className="payment-deadline-text">
           <strong>Plazo de pago: 24 horas</strong>
-          <p>Tus cartas y productos quedan apartados temporalmente. Realiza tu transferencia y sube tu comprobante para asegurar tu orden antes de que se libere el inventario.</p>
+          <p>Realiza tu transferencia y envía el comprobante dentro de las próximas 24 horas. Si no recibimos el comprobante en ese plazo, el pedido se cancelará automáticamente y las piezas volverán al inventario.</p>
         </div>
       </div>
 

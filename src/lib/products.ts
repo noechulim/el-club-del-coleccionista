@@ -11,8 +11,6 @@ export type Product = {
   price_mxn: number;
   compare_at_price_mxn?: number | null;
   stock: number;
-  is_preorder?: boolean;
-  preorder_release_date?: string | null;
   image_url: string;
   image_urls?: string[];
   product_type?: string;

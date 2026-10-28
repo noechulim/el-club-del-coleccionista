@@ -60,7 +60,6 @@ const groups = [
       ["Catálogo completo", "/catalogo"],
       ["Productos sellados", "/categorias/sellado"],
       ["Cartas sueltas (Singles)", "/categorias/cartas-individuales"],
-      ["Preventas exclusivas", "/preventas"],
       ["Ofertas especiales", "/ofertas"],
     ],
   },

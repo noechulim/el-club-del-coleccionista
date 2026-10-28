@@ -327,7 +327,7 @@
 
   .hero .eyebrow {
     margin-bottom: 16px;
-    font-size: 9px;
+    font-size: 12px;
     letter-spacing: .12em;
   }
 
@@ -358,7 +358,7 @@
 
   .hero-footnote {
     margin-top: 23px;
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .hero-art {
@@ -427,12 +427,12 @@
   }
 
   .category-text b {
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.25;
   }
 
   .category-text small {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.3;
   }
 
@@ -484,7 +484,7 @@
     left: 8px;
     top: 8px;
     padding: 6px;
-    font-size: 7px;
+    font-size: 12px;
     letter-spacing: .08em;
   }
 
@@ -516,7 +516,7 @@
   }
 
   .product-info > p {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.35;
   }
 
@@ -529,7 +529,7 @@
   }
 
   .product-bottom strong {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .product-bottom button { width: 100%; min-width: 0; min-height: 34px; }
@@ -558,7 +558,7 @@
   }
 
   .wordmark {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .cart-button {
@@ -623,14 +623,34 @@
 }
 
 @media (max-width: 860px) {
+  .catalog-control-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .catalog-price-range { grid-column: 1 / -1; }
+  .catalog-browser .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .catalog-filter-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .catalog-price-filter { grid-column: 1 / -1; }
 }
 
 @media (max-width: 680px) {
+  .catalog-control-deck { gap: 16px; padding: 17px; }
+  .catalog-deck-heading { align-items: flex-start; }
+  .catalog-deck-heading h2 { font-size: 18px; }
+  .catalog-control-grid { grid-template-columns: minmax(0, 1fr); gap: 13px; }
+  .catalog-price-range { grid-column: auto; }
+  .catalog-deck-footer { align-items: flex-start; }
+  .catalog-quick-filters { gap: 7px; }
+  .catalog-quick-label { width: 100%; }
+  .catalog-results-toolbar { align-items: center; }
   .catalog-filter-panel { padding: 12px; }
   .catalog-filter-row { grid-template-columns: minmax(0, 1fr); }
   .catalog-price-filter { grid-column: auto; }
   .catalog-availability-filters { gap: 12px; }
   .catalog-clear-filters { margin-left: 0; }
+}
+
+@media (max-width: 430px) {
+  .catalog-deck-heading { flex-direction: column; }
+  .catalog-deck-heading .catalog-sidebar-clear { width: 100%; }
+  .catalog-results-toolbar { align-items: flex-start; flex-direction: column; }
+  .catalog-results-toolbar > label { display: grid; gap: 5px; }
+  .catalog-results-toolbar .store-select { width: min(260px, calc(100vw - 44px)); }
 }

@@ -120,7 +120,6 @@ grant execute on function public.submit_contact_message(text,text,text,text,text
 commit;
 notify pgrst, 'reload schema';
 
-
 -- Fuente: 202610230005_preorder_tracking.sql
 -- Allow guest customers to check an order with its number and checkout email.
 -- The function returns fulfillment details only; it never returns contact or address data.
@@ -316,5 +315,18 @@ end;
 $$;
 
 
+commit;
+notify pgrst, 'reload schema';
+
+-- Current store behavior no longer supports product preorders.
+begin;
+drop trigger if exists guard_preorder_dispatch on public.orders;
+drop trigger if exists snapshot_product_preorder on public.order_items;
+drop function if exists public.guard_preorder_dispatch();
+drop function if exists public.snapshot_product_preorder();
+drop function if exists public.admin_release_preorder(uuid);
+update public.products
+set is_preorder = false, preorder_release_date = null, stock = 0, updated_at = now()
+where is_preorder = true;
 commit;
 notify pgrst, 'reload schema';

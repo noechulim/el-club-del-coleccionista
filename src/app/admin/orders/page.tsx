@@ -3,15 +3,16 @@ import { connection } from "next/server";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { createSupabaseServerClient, hasSupabaseConfig } from "@/lib/supabase/server";
+import { createSupabaseServerClient, hasSupabaseConfig, getSessionUser } from "@/lib/supabase/server";
 import type { CustomerOrder } from "@/lib/orders";
 import { AdminNav } from "@/components/admin-nav";
 import { OrderManager } from "./order-manager";
 import "../../styles/admin-products.css";
 import "../../styles/admin-orders.css";
+import { PagePlaceholder } from "@/components/page-shell";
 
 export default function AdminOrdersPage() {
-  return <Suspense fallback={null}><AdminOrdersContent /></Suspense>;
+  return <><SiteHeader /><main className="admin-page"><header className="admin-heading"><div><p className="admin-eyebrow">EL CLUB DEL COLECCIONISTA</p><h1>Administrar pedidos</h1><p>Actualiza el avance y agrega datos de envío.</p></div><Link href="/cuenta">Volver a mi cuenta</Link></header><AdminNav /><Suspense fallback={<PagePlaceholder />}><AdminOrdersContent /></Suspense></main><SiteFooter /></>;
 }
 
 async function AdminOrdersContent() {
@@ -21,7 +22,7 @@ async function AdminOrdersContent() {
   if (!hasSupabaseConfig()) message = "Configura Supabase en .env.local para administrar pedidos.";
   else {
     const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getSessionUser(supabase);
     const { data: isAdmin } = user ? await supabase.rpc("is_store_admin") : { data: false };
     if (!user) message = "Inicia sesión con tu cuenta para administrar pedidos.";
     else if (!isAdmin) message = "Tu cuenta aún no tiene permisos de administración.";
@@ -37,5 +38,5 @@ async function AdminOrdersContent() {
       }))) as typeof orders;
     }
   }
-  return <><SiteHeader /><main className="admin-page"><header className="admin-heading"><div><p className="admin-eyebrow">EL CLUB DEL COLECCIONISTA</p><h1>Administrar pedidos</h1><p>Actualiza el avance y agrega datos de envío.</p></div><Link href="/cuenta">Volver a mi cuenta</Link></header><AdminNav />{message ? <section className="admin-notice">{message}</section> : <OrderManager orders={orders} />}</main><SiteFooter /></>;
+  return <div className="route-content-entrance">{message ? <section className="admin-notice">{message}</section> : <OrderManager orders={orders} />}</div>;
 }

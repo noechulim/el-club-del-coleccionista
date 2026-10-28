@@ -16,7 +16,7 @@ export function ProductGrid({ products, showFilters = true, scope = {} }: { prod
   const filters = { ...emptyFilters };
   if (showFilters) {
     for (const key of ["category", "type", "collection", "minPrice", "maxPrice"] as const) filters[key] = params.get(key) || "";
-    for (const key of ["available", "preorder", "offer"] as const) filters[key] = params.get(key) === "1";
+    for (const key of ["available", "offer"] as const) filters[key] = params.get(key) === "1";
   }
   Object.assign(filters, scope);
   const sort = params.get("sort") || "recent";
@@ -25,6 +25,7 @@ export function ProductGrid({ products, showFilters = true, scope = {} }: { prod
   const page = Math.min(pages, Math.max(1, Math.floor(Number(params.get("page")) || 1)));
   const shown = showFilters ? visible.slice((page - 1) * 12, page * 12) : visible;
   const collections = [...new Set(products.map((p) => p.set_name).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es-MX"));
+  const selectedCategory = filters.type ? `type:${filters.type}` : filters.category ? `category:${filters.category}` : "";
   function update(patch: Record<string, string | boolean>) {
     const url = new URL(window.location.href);
     url.searchParams.delete("page");
@@ -36,29 +37,22 @@ export function ProductGrid({ products, showFilters = true, scope = {} }: { prod
   }
   function clear() { const url = new URL(window.location.href); window.history.replaceState(null, "", url.pathname); }
   return <section id="catalogo" aria-label="Productos">
-    {showFilters && <>
-      <div className="catalog-filter-panel">
-        <div className="catalog-local-search"><label htmlFor="catalog-query">Buscar en esta selección</label><div><span className="search-icon" aria-hidden="true" /><input id="catalog-query" type="search" autoComplete="off" value={query} placeholder="Buscar productos..." onChange={(e) => update({ q: e.target.value })} />{query && <button type="button" aria-label="Limpiar búsqueda" onClick={() => update({ q: "" })}>×</button>}</div></div>
-        <div className="catalog-filter-row">
-          <label>Categoría<StoreSelect label="Categoría" disabled={Boolean(scope.category)} value={filters.category} onChange={(e) => update({ category: e.target.value, type: "" })}><option value="">Todas</option>{Object.entries(categoryLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</StoreSelect></label>
-          <label>Formato<StoreSelect label="Formato" disabled={Boolean(scope.type) || Boolean(filters.category && filters.category !== "sealed")} value={filters.type} onChange={(e) => update({ type: e.target.value, category: e.target.value ? "sealed" : filters.category })}><option value="">Todos los formatos</option>{Object.entries(productTypes).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</StoreSelect></label>
-          <label>Expansión<StoreSelect label="Expansión" disabled={Boolean(scope.collection)} value={filters.collection} onChange={(e) => update({ collection: e.target.value })}><option value="">Todas las expansiones</option>{collections.map((collection) => <option key={collection} value={collection}>{collection}</option>)}</StoreSelect></label>
-          <label>Precio mínimo<input type="number" min="0" step="0.01" placeholder="MXN" value={filters.minPrice} onChange={(e) => update({ minPrice: e.target.value })} /></label>
-          <label>Precio máximo<input type="number" min="0" step="0.01" placeholder="MXN" value={filters.maxPrice} onChange={(e) => update({ maxPrice: e.target.value })} /></label>
-          <label>Ordenar<StoreSelect label="Ordenar" value={sort} onChange={(e) => update({ sort: e.target.value })}><option value="recent">Más recientes</option><option value="price-asc">Menor precio</option><option value="price-desc">Mayor precio</option><option value="name">Nombre A–Z</option><option value="discount">Mayor descuento</option></StoreSelect></label>
+    {showFilters ? <div className="catalog-browser">
+      <div className="catalog-control-deck">
+        <div className="catalog-deck-heading"><div><span className="catalog-deck-kicker">BÚSQUEDA DEL CLUB</span><h2>Encuentra tu próxima pieza</h2></div><button className="catalog-sidebar-clear" type="button" onClick={clear}>Restablecer filtros</button></div>
+        <div className="catalog-local-search"><label htmlFor="catalog-query">Buscar en el catálogo</label><div><span className="search-icon" aria-hidden="true" /><input id="catalog-query" type="search" autoComplete="off" value={query} placeholder="Nombre, expansión o producto..." onChange={(e) => update({ q: e.target.value })} />{query && <button type="button" aria-label="Limpiar búsqueda" onClick={() => update({ q: "" })}>×</button>}</div></div>
+        <div className="catalog-control-grid">
+          <div className="catalog-control-field"><label>Expansión</label><StoreSelect label="Expansión" disabled={Boolean(scope.collection)} value={filters.collection} onChange={(e) => update({ collection: e.target.value })}><option value="">Todas las expansiones</option>{collections.map((collection) => <option key={collection} value={collection}>{collection}</option>)}</StoreSelect></div>
+          <div className="catalog-control-field"><label>Categoría</label><StoreSelect label="Categoría" disabled={Boolean(scope.category) || Boolean(scope.type)} value={selectedCategory} onChange={(e) => { const value = e.target.value; if (value.startsWith("type:")) update({ category: "sealed", type: value.slice(5) }); else if (value.startsWith("category:")) update({ category: value.slice(9), type: "" }); else update({ category: "", type: "" }); }}><option value="">Todas</option><optgroup label="Tipo de producto">{Object.entries(categoryLabels).map(([value, label]) => <option key={value} value={`category:${value}`}>{label}</option>)}</optgroup><optgroup label="Formato sellado">{Object.entries(productTypes).map(([value, label]) => <option key={value} value={`type:${value}`}>{label}</option>)}</optgroup></StoreSelect></div>
+          <fieldset className="catalog-price-range"><legend>Rango de precio (MXN)</legend><label className="sr-only" htmlFor="catalog-min-price">Precio mínimo</label><input id="catalog-min-price" type="number" min="0" step="0.01" placeholder="Mínimo" value={filters.minPrice} onChange={(e) => update({ minPrice: e.target.value })} /><span aria-hidden="true">—</span><label className="sr-only" htmlFor="catalog-max-price">Precio máximo</label><input id="catalog-max-price" type="number" min="0" step="0.01" placeholder="Máximo" value={filters.maxPrice} onChange={(e) => update({ maxPrice: e.target.value })} /></fieldset>
         </div>
-        <div className="catalog-availability-filters">
-          <label><input type="checkbox" checked={filters.available} onChange={(e) => update({ available: e.target.checked })} />Solo disponibles</label>
-          <label><input type="checkbox" disabled={scope.preorder === true} checked={filters.preorder} onChange={(e) => update({ preorder: e.target.checked })} />Preventa</label>
-          <label><input type="checkbox" disabled={scope.offer === true} checked={filters.offer} onChange={(e) => update({ offer: e.target.checked })} />Oferta</label>
-          <span>Idioma: English</span><button type="button" onClick={clear}>Limpiar búsqueda y filtros</button>
-        </div>
+        <div className="catalog-deck-footer"><div className="catalog-quick-filters"><span className="catalog-quick-label">Mostrar</span><label className={filters.available ? "is-active" : ""}><input type="checkbox" checked={filters.available} onChange={(e) => update({ available: e.target.checked })} />Solo disponibles</label><label className={filters.offer ? "is-active" : ""}><input type="checkbox" disabled={scope.offer === true} checked={filters.offer} onChange={(e) => update({ offer: e.target.checked })} />En oferta</label><span className="catalog-language-pill"><span aria-hidden="true">✦</span> Pokémon TCG · English</span></div></div>
       </div>
+      <div className="catalog-results-toolbar"><p className="catalog-results-count" role="status"><strong>{visible.length}</strong> {visible.length === 1 ? "pieza encontrada" : "piezas encontradas"}{query ? ' para “' + query + '”' : ""}</p><label>Ordenar por<StoreSelect label="Ordenar productos" value={sort} onChange={(e) => update({ sort: e.target.value })}><option value="recent">Más recientes</option><option value="price-asc">Menor precio</option><option value="price-desc">Mayor precio</option><option value="name">Nombre A–Z</option><option value="discount">Mayor descuento</option></StoreSelect></label></div>
       {filters.minPrice && filters.maxPrice && Number(filters.minPrice) > Number(filters.maxPrice) && <p role="alert">El precio mínimo no puede superar el máximo.</p>}
-      <p className="catalog-results-count" role="status">{visible.length} {visible.length === 1 ? "producto" : "productos"}{query ? ' para “' + query + '”' : ""}</p>
-    </>}
-    {shown.length ? <div className="product-grid">{shown.map((product) => <ProductCard key={product.id} product={product} onAdded={announceAdded} hydrated={ready} />)}</div> : <div className="catalog-empty"><h2>{query.trim() ? 'No se encontraron resultados para “' + query.trim() + '”' : "No hay productos en esta selección"}</h2><p>Prueba con otro término o explora el catálogo completo.</p><Link prefetch={true} className="text-link" href="/catalogo">Ver todo el catálogo →</Link></div>}
-    {showFilters && pages > 1 && <nav className="catalog-pagination" aria-label="Páginas de productos"><button disabled={page <= 1} onClick={() => update({ page: String(page - 1) })}>← Anterior</button><span aria-live="polite">Página {page} de {pages}</span><button disabled={page >= pages} onClick={() => update({ page: String(page + 1) })}>Siguiente →</button></nav>}
+      {shown.length ? <div className="product-grid">{shown.map((product) => <ProductCard key={product.id} product={product} onAdded={announceAdded} hydrated={ready} />)}</div> : <div className="catalog-empty"><h2>{query.trim() ? 'No se encontraron resultados para “' + query.trim() + '”' : "No hay productos en esta selección"}</h2><p>Prueba con otro término o explora el catálogo completo.</p><Link prefetch={true} className="text-link" href="/catalogo">Ver todo el catálogo →</Link></div>}
+      {pages > 1 && <nav className="catalog-pagination" aria-label="Páginas de productos"><button disabled={page <= 1} onClick={() => update({ page: String(page - 1) })}>← Anterior</button><span aria-live="polite">Página {page} de {pages}</span><button disabled={page >= pages} onClick={() => update({ page: String(page + 1) })}>Siguiente →</button></nav>}
+    </div> : shown.length ? <div className="product-grid">{shown.map((product) => <ProductCard key={product.id} product={product} onAdded={announceAdded} hydrated={ready} />)}</div> : <div className="catalog-empty"><h2>{query.trim() ? 'No se encontraron resultados para “' + query.trim() + '”' : "No hay productos en esta selección"}</h2><p>Prueba con otro término o explora el catálogo completo.</p><Link prefetch={true} className="text-link" href="/catalogo">Ver todo el catálogo →</Link></div>}
   </section>;
 }
 function ProductCard({ product, onAdded, hydrated }: { product: Product; onAdded: (name: string) => void; hydrated: boolean }) {
@@ -69,7 +63,6 @@ function ProductCard({ product, onAdded, hydrated }: { product: Product; onAdded
     <div className="product-art product-art-image" style={{ backgroundImage: `url("${product.image_url.replaceAll('"', '')}")` }} role="img" aria-label={product.name}>
       <span className="product-tag">{categoryLabels[product.category]}</span>
       {Number(product.compare_at_price_mxn) > Number(product.price_mxn) && <span className="product-sale-tag">{discountPercent(product)}% OFF</span>}
-      {product.is_preorder && <span className="product-preorder-tag">Preventa</span>}
       <span className="product-stock">{product.stock > 0 ? `${product.stock} disponibles` : "Agotado"}</span>
     </div>
     </Link>

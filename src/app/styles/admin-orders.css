@@ -2,7 +2,7 @@
 .admin-order-card { padding: clamp(16px, 3vw, 24px); border: 1px solid rgba(139, 168, 199, .17); border-radius: 16px; background: linear-gradient(145deg, rgba(20, 40, 74, .48), rgba(8, 13, 26, .74)); }
 .admin-order-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 13px; border-bottom: 1px solid rgba(139, 168, 199, .14); }
 .admin-order-title h3 { margin: 0; font-size: 15px; }
-.admin-order-title p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+.admin-order-title p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
 .admin-order-title > strong { color: var(--foreground); white-space: nowrap; }
 .admin-order-customer { display: grid; gap: 5px; padding: 14px 0; color: #c9d8e8; font-size: 12px; }
 .admin-order-customer a { width: fit-content; color: #a9c3dd; }
@@ -10,10 +10,10 @@
 .admin-proof-link { margin: 0; font-size: 12px; }
 .admin-proof-link a { color: #b8d5e8; font-weight: 700; }
 .admin-order-lines { display: grid; gap: 7px; padding: 12px 0; border-block: 1px solid rgba(139, 168, 199, .14); }
-.admin-order-lines p { display: flex; justify-content: space-between; gap: 12px; margin: 0; color: #c9d8e8; font-size: 11px; }
+.admin-order-lines p { display: flex; justify-content: space-between; gap: 12px; margin: 0; color: #c9d8e8; font-size: 12px; }
 .admin-order-lines strong { white-space: nowrap; }
 .admin-order-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 12px; padding-top: 14px; }
-.admin-order-form label { min-width: 0; display: grid; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.admin-order-form label { min-width: 0; display: grid; gap: 7px; color: var(--muted); font-size: 12px; font-weight: 600; }
 .admin-order-form input, .admin-order-form select { width: 100%; min-width: 0; height: 40px; padding: 0 10px; border: 1px solid rgba(139, 168, 199, .23); border-radius: 9px; color: var(--foreground); background: rgba(7, 13, 25, .68); }
 .admin-order-form select option { background: #0b1424; }
 .admin-order-form .form-error, .admin-order-form .form-notice { grid-column: 1 / -1; }

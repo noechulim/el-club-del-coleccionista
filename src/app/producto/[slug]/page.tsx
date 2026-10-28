@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -10,6 +9,7 @@ import { getActiveProductBySlug, getRelatedProducts } from "@/lib/products-serve
 import { categoryHref } from "@/lib/catalog";
 import { categoryLabels } from "@/lib/products";
 import "../../styles/product-detail.css";
+import { PagePlaceholder } from "@/components/page-shell";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -59,7 +59,7 @@ export default function ProductPage({ params }: PageProps<"/producto/[slug]">) {
   return (
     <>
       <SiteHeader />
-      <Suspense fallback={null}>
+      <Suspense fallback={<PagePlaceholder />}>
         <ProductContent params={params} />
       </Suspense>
       <SiteFooter />
@@ -68,7 +68,6 @@ export default function ProductPage({ params }: PageProps<"/producto/[slug]">) {
 }
 
 async function ProductContent({ params }: { params: Promise<{ slug: string }> }) {
-  await connection();
   const { slug } = await params;
   const product = await getActiveProductBySlug(slug);
   if (!product) notFound();

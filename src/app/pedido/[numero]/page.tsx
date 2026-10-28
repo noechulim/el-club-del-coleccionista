@@ -10,6 +10,7 @@ import { formatMXN, orderStatusLabels, type OrderStatus } from "@/lib/orders";
 import { getCarrierTracking } from "@/lib/carriers";
 import "../../styles/checkout.css";
 import "../../styles/tracking.css";
+import { PagePlaceholder } from "@/components/page-shell";
 
 export const metadata = {
   title: "Tu pedido | El Club del Coleccionista",
@@ -28,7 +29,7 @@ export default function Page(props: Props) {
       title="Tu pedido"
       intro="Consulta el pago y el estado de tu compra con tu enlace privado."
     >
-      <Suspense fallback={null}>
+      <Suspense fallback={<PagePlaceholder />}>
         <Order {...props} />
       </Suspense>
     </StorePage>
@@ -69,10 +70,9 @@ async function Order({ params, searchParams }: Props) {
     subtotal: number;
     shipping_cost: number;
     total: number;
-    contains_preorder: boolean;
-    preorders_ready: boolean;
     shipping_carrier: string;
     tracking_number: string;
+    cancellation_reason?: string | null;
   };
 
   const carrierInfo =
@@ -92,6 +92,8 @@ async function Order({ params, searchParams }: Props) {
         </span>
       </div>
 
+      {order.status === "cancelled" && <div className="tracking-cancelled-banner"><strong>Este pedido fue cancelado.</strong><p>{order.cancellation_reason === "payment_timeout" ? "No recibimos el comprobante dentro de las 24 horas. El pedido se canceló automáticamente y las piezas volvieron al inventario." : "Si tienes alguna consulta sobre este pedido, escríbenos a través del formulario de contacto."}</p></div>}
+
       <div className="order-private-totals">
         <div>
           <span>Subtotal productos:</span>
@@ -106,16 +108,6 @@ async function Order({ params, searchParams }: Props) {
           <strong>{formatMXN(order.total)}</strong>
         </div>
       </div>
-
-      {order.contains_preorder &&
-        order.status !== "shipped" &&
-        order.status !== "cancelled" && (
-          <p className="store-notice">
-            {order.preorders_ready
-              ? "Las piezas de preventa ya arribaron a nuestra sucursal. Continuamos con el empaque y preparación de tu entrega."
-              : "Tu pedido incluye preventas y se enviará cuando todas las unidades estén disponibles."}
-          </p>
-        )}
 
       {order.status === "pending_payment" && (
         <div className="order-private-payment-section">

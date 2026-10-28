@@ -2,17 +2,24 @@
 import { StoreSelect } from "@/components/store-select";
 
 import { useActionState, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import type { ChangeEvent } from "react";
 import type { Product } from "@/lib/products";
 import { categoryLabels } from "@/lib/products";
 import { productTypes } from "@/lib/catalog";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { deleteProduct, saveProduct, type ProductActionState } from "./actions";
+import { deleteProduct, importMoonProducts, previewMoonProducts, saveProduct, type MoonProductPreview, type ProductActionState } from "./actions";
 
-type Draft = { productType: string; imageUrls: string; specifications: string; isFeatured: boolean; id: string; name: string; category: Product["category"]; setName: string; description: string; price: string; compareAtPrice: string; stock: string; isPreorder: boolean; preorderReleaseDate: string; imageUrl: string; isActive: boolean };
-const blank: Draft = { productType: "", imageUrls: "", specifications: "", isFeatured: false, id: "", name: "", category: "sealed", setName: "", description: "", price: "", compareAtPrice: "", stock: "0", isPreorder: false, preorderReleaseDate: "", imageUrl: "/pokemon-card.jpg", isActive: false };
+type Draft = { productType: string; imageUrls: string; specifications: string; isFeatured: boolean; id: string; name: string; category: Product["category"]; setName: string; description: string; price: string; compareAtPrice: string; stock: string; imageUrl: string; isActive: boolean };
+const blank: Draft = { productType: "", imageUrls: "", specifications: "", isFeatured: false, id: "", name: "", category: "sealed", setName: "", description: "", price: "", compareAtPrice: "", stock: "0", imageUrl: "/pokemon-card.jpg", isActive: false };
 
 export function ProductManager({ products }: { products: Product[] }) {
+  const router = useRouter();
+  const [moonUrls, setMoonUrls] = useState("");
+  const [moonPreviews, setMoonPreviews] = useState<MoonProductPreview[]>([]);
+  const [moonErrors, setMoonErrors] = useState<string[]>([]);
+  const [moonMessage, setMoonMessage] = useState("");
+  const [moonBusy, startMoonTransition] = useTransition();
   const [draft, setDraft] = useState<Draft>(blank);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
@@ -52,7 +59,7 @@ export function ProductManager({ products }: { products: Product[] }) {
   const [deleting, startDelete] = useTransition();
 
   function edit(product: Product) {
-    setDraft({ productType: product.product_type || "", imageUrls: (product.image_urls || []).join("\n"), specifications: product.specifications || "", isFeatured: Boolean(product.is_featured), id: product.id, name: product.name, category: product.category, setName: product.set_name, description: product.description, price: String(product.price_mxn), compareAtPrice: product.compare_at_price_mxn ? String(product.compare_at_price_mxn) : "", stock: String(product.stock), isPreorder: Boolean(product.is_preorder), preorderReleaseDate: product.preorder_release_date ?? "", imageUrl: product.image_url, isActive: product.is_active });
+    setDraft({ productType: product.product_type || "", imageUrls: (product.image_urls || []).join("\n"), specifications: product.specifications || "", isFeatured: Boolean(product.is_featured), id: product.id, name: product.name, category: product.category, setName: product.set_name, description: product.description, price: String(product.price_mxn), compareAtPrice: product.compare_at_price_mxn ? String(product.compare_at_price_mxn) : "", stock: String(product.stock), imageUrl: product.image_url, isActive: product.is_active });
     setSelectedFile(null); setGalleryFiles([]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -65,7 +72,43 @@ export function ProductManager({ products }: { products: Product[] }) {
     startDelete(async () => { await deleteProduct(formData); });
   }
 
+  function previewMoon() {
+    setMoonMessage("");
+    setMoonPreviews([]);
+    setMoonErrors([]);
+    const urls = moonUrls.split(/\r?\n/).map((url) => url.trim()).filter(Boolean);
+    startMoonTransition(async () => {
+      const result = await previewMoonProducts(urls);
+      setMoonPreviews(result.products);
+      setMoonErrors(result.error ? [result.error] : result.errors);
+    });
+  }
+
+  function importMoon() {
+    setMoonMessage("");
+    startMoonTransition(async () => {
+      const result = await importMoonProducts(moonPreviews.map((product) => product.url));
+      setMoonMessage(result.error || `Importados: ${result.imported}. Omitidos por duplicado: ${result.skipped}.${result.errors.length ? ` Errores: ${result.errors.length}.` : ""}`);
+      setMoonErrors(result.errors);
+      if (result.imported) {
+        setMoonPreviews([]);
+        setMoonUrls("");
+        router.refresh();
+      }
+    });
+  }
+
   return <div className="admin-content">
+    <section className="moon-importer">
+      <div className="admin-section-title"><div><p className="admin-eyebrow">IMPORTACIÓN</p><h2>Traer productos de Moon TCG</h2></div></div>
+      <p className="moon-import-help">Pega enlaces de fichas individuales, uno por línea (máximo 20). Se leerán la categoría/formato y la expansión de cada ficha. Revisa los datos antes de importar: la imagen se copiará a tu tienda y el producto quedará como borrador con existencia 0.</p>
+      <label className="moon-import-label">Enlaces de producto<textarea value={moonUrls} onChange={(event) => setMoonUrls(event.target.value)} rows={4} placeholder="https://moon-tcg.com/producto/nombre-del-producto" /></label>
+      <div className="moon-import-actions"><button className="admin-secondary" type="button" onClick={previewMoon} disabled={moonBusy || !moonUrls.trim()}>{moonBusy ? "Consultando…" : "Revisar productos"}</button>{moonPreviews.length > 0 && <button className="admin-primary" type="button" onClick={importMoon} disabled={moonBusy}>{moonBusy ? "Importando…" : `Importar ${moonPreviews.length} producto${moonPreviews.length === 1 ? "" : "s"}`}</button>}</div>
+      {moonMessage && <p className="form-notice" role="status">{moonMessage}</p>}
+      {moonErrors.length > 0 && <ul className="moon-import-errors" role="alert">{moonErrors.map((error) => <li key={error}>{error}</li>)}</ul>}
+      {moonPreviews.length > 0 && <div className="moon-preview-grid">{moonPreviews.map((product) => <article className="moon-preview" key={product.url}><div className="moon-preview-image" style={{ backgroundImage: `url("${product.imageUrl.replaceAll('"', "")}")` }} role="img" aria-label={product.name} /><div><strong>{product.name}</strong><p>Categoría Moon: {product.sourceCategory || "Sin identificar"} · {categoryLabels[product.category]}{product.productType ? ` · ${productTypes[product.productType as keyof typeof productTypes] || product.productType}` : ""}</p><p>Expansión: {product.setName || "Sin identificar"}</p><b>${product.price.toLocaleString("es-MX")} MXN{product.compareAtPrice && <del> ${product.compareAtPrice.toLocaleString("es-MX")} MXN</del>}</b><small>{product.description || "Sin descripción disponible"}</small></div></article>)}</div>}
+    </section>
+
     <form action={formAction} className="product-editor">
       <div className="admin-section-title"><div><p className="admin-eyebrow">{draft.id ? "EDITAR" : "NUEVO"}</p><h2>{draft.id ? "Editar producto" : "Agregar producto"}</h2></div>{draft.id && <button className="admin-secondary" type="button" onClick={() => { setDraft(blank); setSelectedFile(null); setGalleryFiles([]); }}>Cancelar edición</button>}</div>
       <input type="hidden" name="id" value={draft.id} /><input type="hidden" name="imageUrl" value={draft.imageUrl} />
@@ -77,8 +120,6 @@ export function ProductManager({ products }: { products: Product[] }) {
         <label>Precio (MXN)<input name="price" type="number" min="0" step="0.01" value={draft.price} onChange={(e) => setDraft({ ...draft, price: e.target.value })} required /></label>
         <label>Precio anterior (opcional)<input name="compareAtPrice" type="number" min="0" step="0.01" value={draft.compareAtPrice} onChange={(e) => setDraft({ ...draft, compareAtPrice: e.target.value })} placeholder="Para mostrar una oferta" /></label>
         <label>Existencias<input name="stock" type="number" min="0" step="1" value={draft.stock} onChange={(e) => setDraft({ ...draft, stock: e.target.value })} required /></label>
-        <label className="admin-checkbox"><input name="isPreorder" type="checkbox" checked={draft.isPreorder} onChange={(e) => setDraft({ ...draft, isPreorder: e.target.checked, preorderReleaseDate: e.target.checked ? draft.preorderReleaseDate : "" })} /><span>Marcar como preventa</span></label>
-        <label>Fecha estimada de lanzamiento<input name="preorderReleaseDate" type="date" value={draft.preorderReleaseDate} onChange={(e) => setDraft({ ...draft, preorderReleaseDate: e.target.value })} disabled={!draft.isPreorder} /></label>
         <label>Imagen del producto (JPG, PNG o WebP)<input type="file" accept="image/jpeg,image/png,image/webp" onChange={onFileChange} />{selectedFile && <small>{selectedFile.name}</small>}</label>
         <label>Subir imágenes adicionales<input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(e) => setGalleryFiles(Array.from(e.target.files || []))} />{galleryFiles.length > 0 && <small>{galleryFiles.length} imágenes seleccionadas</small>}</label>
         <label className="admin-description">Galería: URLs de imágenes (una por línea, máximo 8)<textarea name="imageUrls" value={draft.imageUrls} onChange={(e) => setDraft({ ...draft, imageUrls: e.target.value })} rows={3} placeholder="https://…" /><small>La imagen principal se conserva al editar. Agrega aquí vistas adicionales de tu producto.</small></label>
@@ -92,7 +133,7 @@ export function ProductManager({ products }: { products: Product[] }) {
     </form>
 
     <section className="admin-product-list"><div className="admin-section-title"><div><p className="admin-eyebrow">CATÁLOGO</p><h2>Productos <span>({products.length})</span></h2></div></div>
-      {products.length === 0 ? <p className="admin-empty">Todavía no hay productos. Los productos de prueba aparecerán aquí después de ejecutar el SQL en Supabase.</p> : <div className="admin-product-grid">{products.map((product) => <article className="admin-product" key={product.id}><div className="admin-product-image" style={{ backgroundImage: `url("${product.image_url.replaceAll('"', '')}")` }} role="img" aria-label={product.name} /><div className="admin-product-detail"><div className="admin-product-title"><h3>{product.name}</h3><span className={product.is_active ? "status-active" : "status-draft"}>{product.is_active ? "Visible" : "Borrador"}</span></div><p>{categoryLabels[product.category]}{product.set_name ? ` · ${product.set_name}` : ""}</p><strong>${Number(product.price_mxn).toLocaleString("es-MX")} MXN{Number(product.compare_at_price_mxn) > Number(product.price_mxn) && <del className="product-old-price">${Number(product.compare_at_price_mxn).toLocaleString("es-MX")}</del>}</strong><small>{product.stock} en existencia{product.is_preorder ? " · Preventa" : ""}{product.is_preorder && product.preorder_release_date ? ` · Lanzamiento estimado ${product.preorder_release_date}` : ""}</small><div className="admin-product-actions"><button className="admin-secondary" type="button" onClick={() => edit(product)}>Editar</button><button className="admin-danger" type="button" disabled={deleting} onClick={() => remove(product)}>Eliminar</button></div></div></article>)}</div>}
+      {products.length === 0 ? <p className="admin-empty">Todavía no hay productos. Los productos de prueba aparecerán aquí después de ejecutar el SQL en Supabase.</p> : <div className="admin-product-grid">{products.map((product) => <article className="admin-product" key={product.id}><div className="admin-product-image" style={{ backgroundImage: `url("${product.image_url.replaceAll('"', '')}")` }} role="img" aria-label={product.name} /><div className="admin-product-detail"><div className="admin-product-title"><h3>{product.name}</h3><span className={product.is_active ? "status-active" : "status-draft"}>{product.is_active ? "Visible" : "Borrador"}</span></div><p>{categoryLabels[product.category]}{product.set_name ? ` · ${product.set_name}` : ""}</p><strong>${Number(product.price_mxn).toLocaleString("es-MX")} MXN{Number(product.compare_at_price_mxn) > Number(product.price_mxn) && <del className="product-old-price">${Number(product.compare_at_price_mxn).toLocaleString("es-MX")}</del>}</strong><small>{product.stock} en existencia</small><div className="admin-product-actions"><button className="admin-secondary" type="button" onClick={() => edit(product)}>Editar</button><button className="admin-danger" type="button" disabled={deleting} onClick={() => remove(product)}>Eliminar</button></div></div></article>)}</div>}
     </section>
   </div>;
 }
