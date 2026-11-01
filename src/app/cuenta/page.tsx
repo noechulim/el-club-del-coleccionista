@@ -10,6 +10,8 @@ export default function AccountPage({ searchParams }: { searchParams: Promise<{ 
   return <AccountContent searchParams={searchParams} />;
 }
 
+export const instant = false;
+
 async function AccountContent({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   // This route reads a live Supabase session, so render this subtree per request.
   await connection();
@@ -30,18 +32,27 @@ async function AccountContent({ searchParams }: { searchParams: Promise<{ error?
   const [derivedFirst, ...derivedLast] = fullName.split(/\s+/).filter(Boolean);
   const firstName = String(metadata.first_name ?? metadata.given_name ?? derivedFirst ?? "");
   const lastName = String(metadata.last_name ?? metadata.family_name ?? derivedLast.join(" "));
+  const profileData = loadProfileData(supabase, user.id, firstName, lastName);
   const ordersData = loadOrdersData(supabase, user.id);
-  const customerData = loadCustomerData(supabase, user.id, firstName, lastName);
+  const customerData = loadCustomerData(supabase, user.id, profileData);
   const paymentProofData = loadPaymentProofData(supabase, ordersData);
-  // Keep this check parallel with dashboard loading. It must not hold the whole
-  // account route; the sidebar reserves its space while the permission resolves.
-  const adminAccess = Promise.resolve(supabase.rpc("is_store_admin"))
-    .then(({ data, error }) => !error && data === true)
-    .catch(() => false);
-  return <AccountDashboard userId={user.id} email={user.email ?? ""} firstName={firstName} lastName={lastName} ordersData={ordersData} customerData={customerData} paymentProofData={paymentProofData} adminAccess={adminAccess} />;
+  const [profile, orders] = await Promise.all([profileData, ordersData]);
+  return <AccountDashboard email={user.email ?? ""} firstName={profile.firstName} lastName={profile.lastName} ordersData={orders} customerData={customerData} paymentProofData={paymentProofData} adminAccess={profile.isAdmin} />;
 }
 
 type ServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+type ProfileData = { firstName: string; lastName: string; isAdmin: boolean };
+const ORDER_PAGE_SIZE = 20;
+
+async function loadProfileData(supabase: ServerClient, userId: string, firstName: string, lastName: string): Promise<ProfileData> {
+  try {
+    const { data, error } = await supabase.from("profiles").select("first_name, last_name, is_admin").eq("id", userId).maybeSingle();
+    if (error) return { firstName, lastName, isAdmin: false };
+    return { firstName: data?.first_name || firstName, lastName: data?.last_name || lastName, isAdmin: data?.is_admin === true };
+  } catch {
+    return { firstName, lastName, isAdmin: false };
+  }
+}
 
 async function loadOrdersData(supabase: ServerClient, userId: string): Promise<OrdersData> {
   try {
@@ -49,14 +60,17 @@ async function loadOrdersData(supabase: ServerClient, userId: string): Promise<O
       .from("orders")
       .select("*, order_items(*)")
       .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-    const orders = (orderData ?? []).map((order) => ({
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(ORDER_PAGE_SIZE + 1);
+    const hasMore = (orderData?.length ?? 0) > ORDER_PAGE_SIZE;
+    const orders = (orderData ?? []).slice(0, ORDER_PAGE_SIZE).map((order) => ({
       ...order,
       created_at_label: new Intl.DateTimeFormat("es-MX", { dateStyle: "long", timeStyle: "short", timeZone: "America/Mexico_City" }).format(new Date(order.created_at)),
     })) as CustomerOrder[];
 
     if (ordersQueryError) return { orders, ordersError: "No pudimos cargar tus pedidos. Intenta más tarde o contacta a la tienda." };
-    return { orders };
+    return { orders, nextOffset: hasMore ? ORDER_PAGE_SIZE : null };
   } catch {
     return { orders: [], ordersError: "No pudimos cargar tus pedidos. Intenta más tarde o contacta a la tienda." };
   }
@@ -75,20 +89,21 @@ async function loadPaymentProofData(supabase: ServerClient, ordersData: Promise<
   }
 }
 
-async function loadCustomerData(supabase: ServerClient, userId: string, firstName: string, lastName: string): Promise<CustomerData> {
+async function loadCustomerData(supabase: ServerClient, userId: string, profileData: Promise<ProfileData>): Promise<CustomerData> {
   try {
-    const [{ data: profile }, { data: addressData, error: addressQueryError }] = await Promise.all([
-      supabase.from("profiles").select("first_name, last_name").eq("id", userId).maybeSingle(),
+    const [profile, { data: addressData, error: addressQueryError }] = await Promise.all([
+      profileData,
       supabase.from("customer_addresses").select("id, label, recipient_name, phone, street, exterior_number, interior_number, neighborhood, city, state, postal_code, is_default").eq("user_id", userId).order("is_default", { ascending: false }).order("created_at", { ascending: false }),
     ]);
     return {
       addresses: (addressData ?? []) as CustomerAddress[],
       addressesError: addressQueryError ? "No pudimos cargar tus direcciones. Puedes capturar la dirección durante la compra." : undefined,
-      firstName: profile?.first_name || firstName,
-      lastName: profile?.last_name || lastName,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
     };
   } catch {
-    return { addresses: [], addressesError: "No pudimos cargar tus direcciones. Puedes capturar la dirección durante la compra.", firstName, lastName };
+    const profile = await profileData;
+    return { addresses: [], addressesError: "No pudimos cargar tus direcciones. Puedes capturar la dirección durante la compra.", firstName: profile.firstName, lastName: profile.lastName };
   }
 }
 

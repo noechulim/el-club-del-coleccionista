@@ -33,7 +33,7 @@ async function AdminOrdersContent() {
         ...order,
         created_at_label: new Intl.DateTimeFormat("es-MX", { dateStyle: "long", timeStyle: "short", timeZone: "America/Mexico_City" }).format(new Date(order.created_at)),
         customer_name: `${order.customer_first_name} ${order.customer_last_name}`,
-        shipping_address: `${order.shipping_street} ${order.shipping_exterior_number}${order.shipping_interior_number ? ` int. ${order.shipping_interior_number}` : ""}, ${order.shipping_neighborhood}, ${order.shipping_city}, ${order.shipping_state}, CP ${order.shipping_postal_code}`,
+        shipping_address: `${order.shipping_street} ${order.shipping_exterior_number}${order.shipping_interior_number ? ` int. ${order.shipping_interior_number}` : ""}, ${order.shipping_neighborhood}, ${order.shipping_city}, ${order.shipping_state}, CP ${order.shipping_postal_code}${order.shipping_reference ? ` · Referencias: ${order.shipping_reference}` : ""}`,
         payment_proof_url: order.payment_proof_path ? (await supabase.storage.from("payment-proofs").createSignedUrl(order.payment_proof_path, 3600)).data?.signedUrl ?? null : null,
       }))) as typeof orders;
     }

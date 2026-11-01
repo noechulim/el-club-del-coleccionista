@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, use, useActionState, useEffect, useState, useSyncExternalStore } from "react";
+import { Suspense, use, useActionState, useState } from "react";
 import Link from "next/link";
 import { saveProfile, signOut, type FormState } from "./actions";
 import { formatMXN, orderStatusLabels, type CustomerOrder } from "@/lib/orders";
@@ -8,14 +8,14 @@ import { getCarrierTracking } from "@/lib/carriers";
 import { PaymentProofUpload } from "@/app/checkout/payment-proof-upload";
 import { AddressManager } from "./address-manager";
 import type { CustomerAddress } from "@/lib/addresses";
-import { cacheAccountOrders, getCachedAccountOrders, subscribeAccountOrders } from "@/lib/account-orders-cache";
+import { ArrowIcon } from "@/components/arrow-icon";
 
 type Tab = "orders" | "profile" | "addresses";
-export type OrdersData = { orders: CustomerOrder[]; ordersError?: string };
+export type OrdersData = { orders: CustomerOrder[]; nextOffset?: number | null; ordersError?: string };
 export type CustomerData = { addresses: CustomerAddress[]; addressesError?: string; firstName: string; lastName: string };
 export type PaymentProofData = { uploadTokens: Record<string, string>; error?: string };
 
-export function AccountDashboard({ userId, email, firstName, lastName, ordersData, customerData, paymentProofData, adminAccess }: { userId: string; email: string; firstName: string; lastName: string; ordersData: Promise<OrdersData>; customerData: Promise<CustomerData>; paymentProofData: Promise<PaymentProofData>; adminAccess: Promise<boolean> }) {
+export function AccountDashboard({ email, firstName, lastName, ordersData, customerData, paymentProofData, adminAccess }: { email: string; firstName: string; lastName: string; ordersData: OrdersData; customerData: Promise<CustomerData>; paymentProofData: Promise<PaymentProofData>; adminAccess: boolean }) {
   const [tab, setTab] = useState<Tab>("orders");
   const displayName = firstName || email;
 
@@ -40,7 +40,7 @@ export function AccountDashboard({ userId, email, firstName, lastName, ordersDat
               <button type="button" className={tab === "orders" ? "is-active" : ""} aria-current={tab === "orders" ? "page" : undefined} onClick={() => setTab("orders")}><NavIcon name="orders" /><span>Mis pedidos</span></button>
               <button type="button" className={tab === "profile" ? "is-active" : ""} aria-current={tab === "profile" ? "page" : undefined} onClick={() => setTab("profile")}><NavIcon name="profile" /><span>Mis datos</span></button>
               <button type="button" className={tab === "addresses" ? "is-active" : ""} aria-current={tab === "addresses" ? "page" : undefined} onClick={() => setTab("addresses")}><NavIcon name="addresses" /><span>Direcciones</span></button>
-              <AdminAccountLinks adminAccess={adminAccess} />
+              {adminAccess && <AdminAccountLinks />}
             </nav>
             <div className="sidebar-account">
               <span className="sidebar-avatar" aria-hidden="true">{displayName.charAt(0).toUpperCase()}</span>
@@ -49,25 +49,14 @@ export function AccountDashboard({ userId, email, firstName, lastName, ordersDat
             <form action={signOut}><button className="signout-button" type="submit"><NavIcon name="signout" /><span>Cerrar sesión</span></button></form>
           </aside>
 
-          <DashboardWorkspace userId={userId} tab={tab} email={email} firstName={firstName} lastName={lastName} ordersData={ordersData} customerData={customerData} paymentProofData={paymentProofData} />
+          <DashboardWorkspace tab={tab} email={email} firstName={firstName} lastName={lastName} ordersData={ordersData} customerData={customerData} paymentProofData={paymentProofData} />
         </div>
       </section>
     </main>
   );
 }
 
-function AdminAccountLinks({ adminAccess }: { adminAccess: Promise<boolean> }) {
-  // Render the navigation with the account shell; remove it after the role
-  // check for non-admins. Admin pages and actions enforce permissions server-side.
-  const [visible, setVisible] = useState(true);
-  useEffect(() => {
-    let active = true;
-    void adminAccess.then((isAdmin) => {
-      if (active && !isAdmin) setVisible(false);
-    });
-    return () => { active = false; };
-  }, [adminAccess]);
-  if (!visible) return null;
+function AdminAccountLinks() {
   return <>
     <Link className="admin-account-link" href="/admin"><NavIcon name="admin" /><span>Resumen de la tienda</span></Link>
     <Link className="admin-account-link" href="/admin/contacto"><NavIcon name="orders" /><span>Consultas de clientes</span></Link>
@@ -76,33 +65,49 @@ function AdminAccountLinks({ adminAccess }: { adminAccess: Promise<boolean> }) {
   </>;
 }
 
-function DashboardWorkspace({ userId, tab, email, firstName, lastName, ordersData, customerData, paymentProofData }: { userId: string; tab: Tab; email: string; firstName: string; lastName: string; ordersData: Promise<OrdersData>; customerData: Promise<CustomerData>; paymentProofData: Promise<PaymentProofData> }) {
-  const cachedOrders = useSyncExternalStore(
-    (listener) => subscribeAccountOrders(userId, listener),
-    () => getCachedAccountOrders(userId),
-    () => null,
-  );
-
-  useEffect(() => {
-    let active = true;
-    void ordersData.then((data) => {
-      if (active) cacheAccountOrders(userId, data);
-    });
-    return () => { active = false; };
-  }, [ordersData, userId]);
-
+function DashboardWorkspace({ tab, email, firstName, lastName, ordersData, customerData, paymentProofData }: { tab: Tab; email: string; firstName: string; lastName: string; ordersData: OrdersData; customerData: Promise<CustomerData>; paymentProofData: Promise<PaymentProofData> }) {
   return <section className="account-workspace" aria-live="polite">
-    {tab === "orders" && <div className="route-content-entrance"><WorkspaceHeading eyebrow="ACTIVIDAD" title="Mis pedidos" copy="Consulta aquí el recorrido de tus compras." badge="Historial" /><Suspense fallback={<DashboardSkeleton />}><OrdersWorkspace ordersData={ordersData} cachedOrders={cachedOrders} paymentProofData={paymentProofData} /></Suspense></div>}
+    {tab === "orders" && <div className="route-content-entrance"><WorkspaceHeading eyebrow="ACTIVIDAD" title="Mis pedidos" copy="Consulta aquí el recorrido de tus compras." badge="Historial" /><LoadedOrdersWorkspace dashboard={ordersData} paymentProofData={paymentProofData} /></div>}
     {tab === "addresses" && <Suspense fallback={<DashboardSkeleton />}><AddressesWorkspace customerData={customerData} /></Suspense>}
     {tab === "profile" && <Suspense fallback={<DashboardSkeleton />}><ProfileWorkspace email={email} firstName={firstName} lastName={lastName} customerData={customerData} /></Suspense>}
   </section>;
 }
 
-function OrdersWorkspace({ ordersData, cachedOrders, paymentProofData }: { ordersData: Promise<OrdersData>; cachedOrders: OrdersData | null; paymentProofData: Promise<PaymentProofData> }) {
-  const dashboard = cachedOrders ?? use(ordersData);
+function LoadedOrdersWorkspace({ dashboard, paymentProofData }: { dashboard: OrdersData; paymentProofData: Promise<PaymentProofData> }) {
   if (dashboard.ordersError) return <p className="form-error" role="alert">{dashboard.ordersError}</p>;
   if (!dashboard.orders.length) return <EmptyPanel title="Tu historial empieza aquí" copy="Cuando realices tu primera compra, podrás seguir desde aquí cada actualización de tu pedido." />;
-  return <><Suspense fallback={null}><ProofSetupNotice paymentProofData={paymentProofData} /></Suspense><OrderList orders={dashboard.orders} paymentProofData={paymentProofData} /></>;
+  return <><Suspense fallback={null}><ProofSetupNotice paymentProofData={paymentProofData} /></Suspense><PagedOrderList dashboard={dashboard} paymentProofData={paymentProofData} /></>;
+}
+
+function PagedOrderList({ dashboard, paymentProofData }: { dashboard: OrdersData; paymentProofData: Promise<PaymentProofData> }) {
+  const [olderOrders, setOlderOrders] = useState<CustomerOrder[]>([]);
+  const [nextOffset, setNextOffset] = useState<number | null>(dashboard.nextOffset ?? null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const seen = new Set(dashboard.orders.map((order) => order.id));
+  const orders = [...dashboard.orders, ...olderOrders.filter((order) => !seen.has(order.id))];
+
+  async function loadMore() {
+    if (loading || nextOffset === null) return;
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/cuenta/pedidos?offset=${nextOffset}`, { cache: "no-store", credentials: "same-origin" });
+      if (!response.ok) throw new Error("orders_unavailable");
+      const result = await response.json() as { orders: OrdersData };
+      setOlderOrders((current) => {
+        const ids = new Set([...dashboard.orders, ...current].map((order) => order.id));
+        return [...current, ...result.orders.orders.filter((order) => !ids.has(order.id))];
+      });
+      setNextOffset(result.orders.nextOffset ?? null);
+    } catch {
+      setError("No pudimos cargar más pedidos. Inténtalo de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return <><OrderList orders={orders} paymentProofData={paymentProofData} />{nextOffset !== null && <button className="account-load-more" type="button" onClick={loadMore} disabled={loading}>{loading ? "Cargando pedidos…" : "Ver más pedidos"}</button>}{error && <p className="form-error" role="alert">{error}</p>}</>;
 }
 
 function ProofSetupNotice({ paymentProofData }: { paymentProofData: Promise<PaymentProofData> }) {
@@ -142,7 +147,7 @@ function OrderList({ orders, paymentProofData }: { orders: CustomerOrder[]; paym
                 rel="noopener noreferrer"
                 className="account-tracking-link"
               >
-                Rastrear en {carrier.name} ↗
+                Rastrear en {carrier.name} <ArrowIcon direction="up-right" className="ui-arrow-up-right" />
               </a>
             )}
           </div>
@@ -175,7 +180,7 @@ function EmptyPanel({ title, copy }: { title: string; copy: string }) {
         <span className="empty-card empty-card-back" />
         <span className="empty-card empty-card-front"><PokeballIcon /></span>
       </div>
-      <div className="account-empty-copy"><h3>{title}</h3><p>{copy}</p><Link className="empty-explore-link" href="/catalogo">Explorar catálogo <span aria-hidden="true">→</span></Link></div>
+      <div className="account-empty-copy"><h3>{title}</h3><p>{copy}</p><Link className="empty-explore-link" href="/catalogo">Explorar catálogo <ArrowIcon /></Link></div>
     </section>
   );
 }

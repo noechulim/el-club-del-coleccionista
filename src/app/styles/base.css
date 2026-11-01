@@ -39,6 +39,7 @@
 html {
   width: 100%;
   scroll-behavior: auto;
+  scroll-padding-top: 92px;
   min-height: 100%;
   background-color: var(--background);
 }
@@ -101,7 +102,7 @@ body {
 }
 
 :where(p, label, input, select, textarea, option, nav, small, .product-description,
-  .product-card-link p, .product-old-price, .store-breadcrumb, .store-progress,
+  .product-card-link p, .product-old-price, .store-breadcrumb,
   .catalog-filter-row, .catalog-availability-filters) {
   font-family: var(--font-reading);
 }
@@ -115,6 +116,14 @@ body {
 :where(.product-sale-tag, .order-status) { font-weight: var(--font-weight-bold); }
 
 ::placeholder { font-family: var(--font-reading); }
+
+::selection { color: #f5f9ff; background: #405b90; }
+::-moz-selection { color: #f5f9ff; background: #405b90; }
+
+.cart-eyebrow { margin: 0; color: var(--muted); font-family: var(--font-impact); font-size: 12px; font-weight: 800; letter-spacing: .17em; }
+.cart-primary { min-height: 43px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; border: 0; border-radius: 11px; color: var(--accent-ink); background: var(--accent); font-family: var(--font-impact); font-size: 14px; font-weight: 700; cursor: pointer; }
+.cart-primary:hover:not(:disabled) { filter: brightness(1.06); }
+.cart-primary:disabled { width: 100%; color: #c4cfda; background: #34465a; cursor: not-allowed; }
 
 main {
   width: 100%;
@@ -138,6 +147,30 @@ main {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+.ui-arrow {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.14em;
+  margin-inline-start: 0.35em;
+  transition: transform 180ms ease;
+}
+
+a:hover .ui-arrow, button:not(:disabled):hover .ui-arrow {
+  transform: translateX(3px);
+}
+
+.ui-arrow-left { margin-inline: 0 0.35em; }
+a:hover .ui-arrow-left, button:not(:disabled):hover .ui-arrow-left { transform: translateX(-3px); }
+
+.ui-arrow-up-right { transform-origin: center; }
+a:hover .ui-arrow-up-right, button:not(:disabled):hover .ui-arrow-up-right { transform: translate(2px, -2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-arrow { transition: none; }
 }
 
 button,

@@ -4,6 +4,7 @@ import { revalidatePath, updateTag } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { OrderStatus } from "@/lib/orders";
 import { sendOrderEmail } from "@/lib/order-email";
+import { orderStatusOptions } from "@/lib/order-transitions";
 
 export type OrderActionState = { error?: string; message?: string; warning?: string };
 const statuses: OrderStatus[] = ["pending_payment", "proof_submitted", "payment_confirmed", "preparing", "shipped", "cancelled"];
@@ -28,6 +29,7 @@ export async function updateOrder(_previous: OrderActionState, formData: FormDat
     .eq("id", id)
     .maybeSingle();
   if (orderError || !order) return { error: "No se encontró el pedido para actualizar." };
+  if (!orderStatusOptions(order.status as OrderStatus).includes(status)) return { error: "Ese cambio de estado no está permitido para este pedido." };
 
   const { error } = await supabase.rpc("admin_update_order", {
     p_order_id: id,
@@ -38,6 +40,8 @@ export async function updateOrder(_previous: OrderActionState, formData: FormDat
   if (error) {
     return { error: error.message.includes("terminal_order_status")
       ? "Un pedido cancelado o enviado no puede regresar a otro estado."
+      : error.message.includes("invalid_order_transition")
+        ? "Ese cambio de estado no está permitido para este pedido. Actualiza la página y revisa su estado actual."
       : error.message.includes("tracking_required")
         ? "Agrega el número de guía antes de marcar el pedido como enviado."
         : "No se pudo actualizar el pedido. Verifica que aplicaste la migración de administración de pedidos." };

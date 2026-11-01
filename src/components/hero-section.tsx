@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowIcon } from "./arrow-icon";
 
 export function HeroSection() {
   return (
@@ -14,7 +15,7 @@ export function HeroSection() {
         </p>
         <div className="hero-actions">
           <Link prefetch={true} className="button button-primary" href="/catalogo">
-            Explorar catálogo <span aria-hidden="true">→</span>
+            Explorar catálogo <ArrowIcon />
           </Link>
           <Link prefetch={true} className="button button-quiet" href="/categorias">Ver categorías</Link>
         </div>

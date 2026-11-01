@@ -1,7 +1,6 @@
 export const categories = [
   { icon: "▣", title: "Productos sellados", detail: "Booster Box, ETB y colecciones", category: "sealed" },
   { icon: "✦", title: "Cartas sueltas", detail: "Encuentra esa pieza especial", category: "single" },
-  { icon: "◈", title: "Cartas calificadas", detail: "Piezas certificadas para coleccionar", category: "graded" },
   { icon: "⌑", title: "Accesorios", detail: "Protege y organiza tu colección", category: "accessory" },
 ];
 

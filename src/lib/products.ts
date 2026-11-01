@@ -10,6 +10,7 @@ export type Product = {
   language: "English";
   price_mxn: number;
   compare_at_price_mxn?: number | null;
+  is_offer?: boolean;
   stock: number;
   image_url: string;
   image_urls?: string[];
@@ -19,9 +20,17 @@ export type Product = {
   is_active: boolean;
 };
 
+export function hasPriceReduction(product: Product) {
+  return product.compare_at_price_mxn != null && Number(product.compare_at_price_mxn) > Number(product.price_mxn);
+}
+
+export function isOfferProduct(product: Product) {
+  return product.is_offer === true && hasPriceReduction(product);
+}
+
 export const categoryLabels: Record<ProductCategory, string> = {
   sealed: "Sellado",
-  single: "Carta individual",
-  graded: "Carta calificada",
+  single: "Cartas sueltas",
+  graded: "Cartas sueltas",
   accessory: "Accesorio",
 };

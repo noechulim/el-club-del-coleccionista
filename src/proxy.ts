@@ -30,5 +30,5 @@ export async function proxy(request: NextRequest) {
 
 // Solo las rutas que usan sesión pasan por el proxy; el catálogo público se sirve sin esperar a Supabase Auth.
 export const config = {
-  matcher: ["/cuenta/:path*", "/admin/:path*", "/checkout/:path*", "/pedido/:path*", "/auth/:path*", "/seguimiento/:path*", "/contacto/:path*"],
+  matcher: ["/cuenta/:path*", "/api/cuenta/:path*", "/admin/:path*", "/checkout/:path*", "/pedido/:path*", "/auth/:path*", "/seguimiento/:path*", "/contacto/:path*"],
 };

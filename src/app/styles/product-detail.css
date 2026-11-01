@@ -81,18 +81,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: zoom-in;
   overflow: hidden;
-  transition: border-color 200ms ease, box-shadow 200ms ease;
-}
-
-.product-detail-image:hover {
-  border-color: rgba(184, 213, 232, 0.45);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 36px rgba(139, 168, 199, 0.22);
-}
-
-.product-detail-image:hover .product-card-canvas {
-  transform: scale(1.02);
 }
 
 /* Canvas de la carta centrado con aspecto natural */
@@ -102,7 +91,6 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  transition: transform 250ms ease;
 }
 
 /* Badges sobre la carta */
@@ -135,26 +123,6 @@
   font-size: 12px;
   font-weight: 800;
   backdrop-filter: blur(10px);
-}
-
-.product-zoom-hint {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: rgba(7, 13, 25, 0.78);
-  border: 1px solid rgba(139, 168, 199, 0.2);
-  color: #c7dced;
-  font-size: 12px;
-  font-weight: 600;
-  pointer-events: none;
-  backdrop-filter: blur(8px);
 }
 
 /* Miniaturas */
@@ -196,50 +164,6 @@
   border-color: #b8d5e8;
   box-shadow: 0 0 12px rgba(184, 213, 232, 0.35);
   background: rgba(52, 75, 131, 0.5);
-}
-
-/* Lightbox Modal */
-.product-lightbox {
-  padding: 0;
-  border: 1px solid rgba(139, 168, 199, 0.3);
-  border-radius: 18px;
-  background: rgba(8, 13, 26, 0.95);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(20px);
-  max-width: 90vw;
-  max-height: 90vh;
-}
-
-.product-lightbox::backdrop {
-  background: rgba(4, 7, 14, 0.85);
-  backdrop-filter: blur(8px);
-}
-
-.lightbox-close-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 10;
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(139, 168, 199, 0.3);
-  background: rgba(20, 40, 74, 0.8);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.lightbox-image-wrap {
-  padding: 40px;
-  display: grid;
-  place-items: center;
-}
-
-.lightbox-image-wrap img {
-  max-width: 80vw;
-  max-height: 80vh;
-  object-fit: contain;
 }
 
 /* --------------------------------------------------------
@@ -602,7 +526,7 @@
 
 .spec-link {
   color: #b8d5e8;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Sección de Recomendados */

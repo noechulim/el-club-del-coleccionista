@@ -1,4 +1,5 @@
 import type { Product } from "./products";
+import { isOfferProduct } from "./products";
 
 export const productTypes = {
   "booster-box": "Booster Box", "elite-trainer-box": "Elite Trainer Box",
@@ -12,21 +13,19 @@ export const catalogCategories = [
   { slug: "cartas-calificadas", label: "Cartas calificadas", category: "graded", type: "" },
   { slug: "accesorios", label: "Accesorios", category: "accessory", type: "" },
 ];
-export type CatalogFilters = { category: string; type: string; collection: string; minPrice: string; maxPrice: string; available: boolean; offer: boolean };
-export const emptyFilters: CatalogFilters = { category: "", type: "", collection: "", minPrice: "", maxPrice: "", available: false, offer: false };
+export type CatalogFilters = { category: string; type: string; collection: string; available: boolean; offer: boolean };
+export const emptyFilters: CatalogFilters = { category: "", type: "", collection: "", available: false, offer: false };
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es-MX").trim();
 export function filterProducts(products: Product[], filters: CatalogFilters, query: string, sort: string) {
   const terms = normalizeSearch(query).split(/\s+/).filter(Boolean);
   const result = products.filter((product) => {
     const text = normalizeSearch(`${product.name} ${product.set_name} ${product.description}`);
     return terms.every((term) => text.includes(term))
-      && (!filters.category || product.category === filters.category)
+      && (!filters.category || (filters.category === "single" ? product.category === "single" || product.category === "graded" : product.category === filters.category))
       && (!filters.type || product.product_type === filters.type)
       && (!filters.collection || product.set_name === filters.collection)
-      && (filters.minPrice === "" || Number(product.price_mxn) >= Number(filters.minPrice))
-      && (filters.maxPrice === "" || Number(product.price_mxn) <= Number(filters.maxPrice))
       && (!filters.available || product.stock > 0)
-      && (!filters.offer || Number(product.compare_at_price_mxn) > Number(product.price_mxn));
+      && (!filters.offer || isOfferProduct(product));
   });
   if (sort === "price-asc") result.sort((a, b) => a.price_mxn - b.price_mxn);
   if (sort === "price-desc") result.sort((a, b) => b.price_mxn - a.price_mxn);
@@ -34,5 +33,5 @@ export function filterProducts(products: Product[], filters: CatalogFilters, que
   if (sort === "discount") result.sort((a, b) => (1 - b.price_mxn / (b.compare_at_price_mxn || b.price_mxn || 1)) - (1 - a.price_mxn / (a.compare_at_price_mxn || a.price_mxn || 1)));
   return result;
 }
-export function categoryHref(category: string) { return `/categorias/${catalogCategories.find((item) => item.category === category && !item.type)?.slug ?? "sellado"}`; }
-export function collectionHref(name: string) { return `/expansiones/${encodeURIComponent(name)}`; }
+export function categoryHref(category: string) { return `/categorias/${category === "graded" ? "cartas-sueltas" : catalogCategories.find((item) => item.category === category && !item.type)?.slug ?? "sellado"}`; }
+export function collectionHref(name: string) { return `/catalogo?collection=${encodeURIComponent(name)}`; }

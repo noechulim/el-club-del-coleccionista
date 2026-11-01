@@ -44,7 +44,7 @@
   color: var(--foreground);
   font-family: var(--font-impact);
   font-size: clamp(30px, 6vw, 40px);
-  font-weight: 500;
+  font-weight: var(--font-weight-bold);
   letter-spacing: -.035em;
 }
 
@@ -250,6 +250,9 @@
 .profile-submit { width: min(100%, 240px); margin-top: 4px; }
 .account-loading { margin: auto; color: var(--muted); }
 .account-order-list { display: grid; gap: 12px; }
+.account-load-more { display: block; margin: 20px auto 0; min-height: 42px; padding: 0 20px; border: 1px solid var(--line); border-radius: 11px; color: var(--foreground); background: rgba(20, 40, 74, .55); cursor: pointer; }
+.account-load-more:hover:not(:disabled) { border-color: var(--muted); background: rgba(52, 75, 131, .5); }
+.account-load-more:disabled { opacity: .65; cursor: wait; }
 .account-order-card { min-width: 0; padding: 17px; border: 1px solid rgba(139, 168, 199, .17); border-radius: 15px; background: linear-gradient(145deg, rgba(20, 40, 74, .42), rgba(7, 13, 25, .45)); }
 .account-order-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding-bottom: 13px; border-bottom: 1px solid rgba(139, 168, 199, .13); }
 .account-order-number { margin: 0; color: var(--foreground); font-size: 14px; font-weight: 750; }

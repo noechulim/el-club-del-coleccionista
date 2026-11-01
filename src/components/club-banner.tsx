@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowIcon } from "./arrow-icon";
 export function ClubBanner() {
   return (
     <section className="club-banner section-wrap">
@@ -8,7 +9,7 @@ export function ClubBanner() {
         <h2>Tu próxima pieza<br /><em>te está esperando.</em></h2>
       </div>
       <Link className="button button-primary" href="/catalogo">
-        Descubrir productos <span>→</span>
+        Descubrir productos <ArrowIcon />
       </Link>
     </section>
   );

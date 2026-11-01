@@ -1,7 +1,7 @@
 export const faqs = [
   ["¿Necesito una cuenta para comprar?", "Puedes comprar como invitado. Conserva tu número de pedido y utiliza el mismo correo para consultar el seguimiento. Con una cuenta puedes ver tu historial y guardar direcciones."],
   ["¿Cómo realizo el pago?", "Después de confirmar el pedido verás las instrucciones de transferencia. Sube tu comprobante desde la confirmación o, si compraste con una cuenta, desde Mis pedidos. La tienda revisa el comprobante antes de confirmar el pago."],
-  ["¿Cuánto cuesta el envío?", "Consulta las tarifas actuales en la sección Envíos. El costo se calcula según el estado de entrega y el importe de la compra; verás el total antes de confirmar."],
+  ["¿Cuánto cuesta el envío?", "El envío cuesta $220 MXN en todo México y es gratis desde $1,500 MXN de compra. Verás el total antes de confirmar tu pedido."],
   ["¿Cómo sé que mi pedido ya fue enviado?", "Consulta Rastrea tu pedido o Mis pedidos. Cuando la tienda registre el envío aparecerán la paquetería y el número de guía. Los avisos por correo complementan este seguimiento."],
   ["¿Qué significa Comprobante enviado?", "Recibimos tu archivo, pero el pago todavía está en revisión. El estado cambia a Pago confirmado cuando la tienda lo valida."],
   ["¿Puedo cambiar mi dirección después de comprar?", "Escríbenos desde Contacto con tu número de pedido lo antes posible. Editar una dirección guardada no cambia la dirección de un pedido ya registrado."],
@@ -11,7 +11,7 @@ export const faqs = [
 // Operational copy for the prototype. Complete merchant identity and approve policies before launch.
 export const helpPages = {
   envios: { title: "Envíos", intro: "Consulta cómo pasa tu pedido de nuestra tienda a tu colección.", sections: [
-    ["Costo de envío", "Las tarifas vigentes se muestran arriba. El envío se calcula según el estado de entrega; los descuentos por importe de compra se aplican automáticamente. El costo definitivo aparece antes de confirmar el pedido."],
+    ["Costo de envío", "La tarifa general es de $220 MXN en todo México. El envío es gratis en compras desde $1,500 MXN. El costo definitivo aparece antes de confirmar el pedido."],
     ["Preparación y seguimiento", "El pedido se prepara después de confirmar el pago. Cuando se registra el envío, podrás consultar la paquetería y la guía en Rastrea tu pedido o en tu cuenta. La fecha de entrega depende de la paquetería y del destino; no se muestra una fecha garantizada antes del despacho."],
     ["Datos de entrega", "Revisa calle, número exterior, colonia, municipio, estado y código postal antes de confirmar. Para solicitar cambios en un pedido existente, contacta a la tienda con su número de pedido."],
   ] },

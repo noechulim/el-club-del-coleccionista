@@ -6,7 +6,7 @@ import { StorePage } from "./store-page";
 import { PagePlaceholder } from "./page-shell";
 
 export function CatalogPage({ title, intro, scope = {} }: { title: string; intro: string; scope?: Partial<CatalogFilters> }) {
-  return <StorePage title={title} intro={intro}><Suspense fallback={<PagePlaceholder />}><CatalogResults scope={scope} /></Suspense></StorePage>;
+  return <StorePage title={title} intro={intro} compact><Suspense fallback={<PagePlaceholder />}><CatalogResults scope={scope} /></Suspense></StorePage>;
 }
 export async function CatalogResults({ scope = {} }: { scope?: Partial<CatalogFilters> }) {
   const products = await getActiveProducts();

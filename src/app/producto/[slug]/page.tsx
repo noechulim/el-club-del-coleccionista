@@ -9,7 +9,9 @@ import { getActiveProductBySlug, getRelatedProducts } from "@/lib/products-serve
 import { categoryHref } from "@/lib/catalog";
 import { categoryLabels } from "@/lib/products";
 import "../../styles/product-detail.css";
-import { PagePlaceholder } from "@/components/page-shell";
+import { ProductGrid } from "@/components/product-grid";
+import { ArrowIcon } from "@/components/arrow-icon";
+import { ProductNavigationPreview } from "@/components/product-navigation-preview";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -59,7 +61,7 @@ export default function ProductPage({ params }: PageProps<"/producto/[slug]">) {
   return (
     <>
       <SiteHeader />
-      <Suspense fallback={<PagePlaceholder />}>
+      <Suspense fallback={<Suspense fallback={null}><ProductNavigationPreview /></Suspense>}>
         <ProductContent params={params} />
       </Suspense>
       <SiteFooter />
@@ -71,12 +73,23 @@ async function ProductContent({ params }: { params: Promise<{ slug: string }> })
   const { slug } = await params;
   const product = await getActiveProductBySlug(slug);
   if (!product) notFound();
-  const relatedProducts = await getRelatedProducts(product);
-
   return <main className="product-detail-page">
     <nav className="product-breadcrumb" aria-label="Migas de pan">
       <Link href="/">Inicio</Link><span>/</span><Link href="/catalogo">Catálogo</Link><span>/</span><Link href={categoryHref(product.category)}>{categoryLabels[product.category]}</Link><span>/</span><span aria-current="page">{product.name}</span>
     </nav>
-    <ProductDetail key={product.id} product={product} relatedProducts={relatedProducts} />
+    <ProductDetail key={product.id} product={product} />
+    <Suspense fallback={null}><RelatedProducts product={product} /></Suspense>
   </main>;
+}
+
+async function RelatedProducts({ product }: { product: NonNullable<Awaited<ReturnType<typeof getActiveProductBySlug>>> }) {
+  const relatedProducts = await getRelatedProducts(product);
+  if (!relatedProducts.length) return null;
+  return <section className="product-related-section" aria-labelledby="related-products-title">
+    <div className="product-related-heading">
+      <div><p className="product-detail-eyebrow">RECOMENDACIONES</p><h2 id="related-products-title">Más para tu colección</h2></div>
+      <Link href="/catalogo" className="view-catalog-link">Ver todo el catálogo <ArrowIcon /></Link>
+    </div>
+    <ProductGrid products={relatedProducts} showFilters={false} />
+  </section>;
 }

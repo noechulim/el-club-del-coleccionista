@@ -10,6 +10,8 @@ import type { Product } from "@/lib/products";
 import "../../styles/admin-products.css";
 import { PagePlaceholder } from "@/components/page-shell";
 
+export const maxDuration = 60;
+
 export default function AdminProductsPage() {
   return <><SiteHeader /><main className="admin-page"><header className="admin-heading"><div><p className="admin-eyebrow">EL CLUB DEL COLECCIONISTA</p><h1>Administrar productos</h1><p>Agrega y actualiza los artículos del catálogo en inglés.</p></div><Link href="/">Volver a la tienda</Link></header><AdminNav /><Suspense fallback={<PagePlaceholder />}><AdminProductsContent /></Suspense></main><SiteFooter /></>;
 }

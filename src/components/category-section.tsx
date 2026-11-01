@@ -1,6 +1,7 @@
 import { categories } from "@/data/store-content";
 import Link from "next/link";
 import { categoryHref } from "@/lib/catalog";
+import { ArrowIcon } from "./arrow-icon";
 
 export function CategorySection() {
   return (
@@ -10,7 +11,7 @@ export function CategorySection() {
           <p className="eyebrow">EXPLORA LA TIENDA</p>
           <h2>¿Qué buscas hoy?</h2>
         </div>
-        <Link prefetch={true} className="text-link" href="/categorias">Ver todas las categorías <span>→</span></Link>
+        <Link prefetch={true} className="text-link" href="/categorias">Ver todas las categorías <ArrowIcon /></Link>
       </div>
       <div className="category-grid">
         {categories.map((category, index) => (
@@ -20,7 +21,7 @@ export function CategorySection() {
               <b>{category.title}</b>
               <small>{category.detail}</small>
             </span>
-            <span className="category-arrow">↗</span>
+            <ArrowIcon direction="up-right" className="category-arrow ui-arrow-up-right" />
           </Link>
         ))}
       </div>

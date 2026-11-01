@@ -96,10 +96,6 @@
   100% { opacity: 0; transform: scale(.6); }
 }
 
-.wordmark span::selection {
-  color: inherit;
-  background: transparent;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .wordmark span,
@@ -121,25 +117,17 @@
 }
 
 .desktop-nav a {
-  position: relative;
-  transition: color 180ms ease;
+  transition: color 180ms ease, text-shadow 180ms ease;
 }
 
-.desktop-nav a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -8px;
-  height: 1px;
-  background: var(--purple-2);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 220ms ease;
+.desktop-nav a:hover,
+.desktop-nav a:focus-visible {
+  color: #f0f5ff;
+  text-shadow: 0 0 8px rgba(184, 213, 232, .7), 0 0 18px rgba(139, 168, 199, .45);
 }
 
-.desktop-nav a:hover::after {
-  transform: scaleX(1);
+@media (prefers-reduced-motion: reduce) {
+  .desktop-nav a { transition: none; }
 }
 
 .header-actions {
@@ -219,10 +207,6 @@
   line-height: 20px;
 }
 
-.search-box input::selection {
-  color: inherit;
-  background: transparent;
-}
 
 .search-box input:focus,
 .search-box input:active {

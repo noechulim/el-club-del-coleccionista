@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { ArrowIcon } from "./arrow-icon";
 
 type TrustBadge = {
   icon: ReactNode;
@@ -59,7 +60,7 @@ const groups = [
     links: [
       ["Catálogo completo", "/catalogo"],
       ["Productos sellados", "/categorias/sellado"],
-      ["Cartas sueltas (Singles)", "/categorias/cartas-individuales"],
+      ["Cartas sueltas (Singles)", "/categorias/cartas-sueltas"],
       ["Ofertas especiales", "/ofertas"],
     ],
   },
@@ -119,7 +120,7 @@ export function SiteFooter() {
                 <p>Escríbenos en cualquier momento.</p>
               </div>
               <Link prefetch={true} href="/contacto" className="footer-contact-link">
-                Escribir mensaje →
+                Escribir mensaje <ArrowIcon />
               </Link>
             </div>
           </div>

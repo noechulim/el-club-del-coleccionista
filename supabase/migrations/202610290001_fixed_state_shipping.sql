@@ -1,0 +1,3 @@
+-- Superseded by 202610290002_fixed_shipping_policy.sql.
+-- Keep this version in migration history in case it was already applied.
+-- The next migration sets the final $220 / $1,500 policy.

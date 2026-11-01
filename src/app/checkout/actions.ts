@@ -60,6 +60,7 @@ export async function placeOrder(_previous: CheckoutState, formData: FormData): 
     city: text(formData, "city"),
     state: text(formData, "state"),
     postal_code: postalCode,
+    reference: text(formData, "reference"),
   };
 
   if (!customer.first_name || !customer.last_name || !address.street || !address.exterior_number || !address.neighborhood || !address.city || !address.state) {
@@ -68,6 +69,7 @@ export async function placeOrder(_previous: CheckoutState, formData: FormData): 
   if (customer.first_name.length > 80 || customer.last_name.length > 100 || customer.phone.length > 30) {
     return { error: "Revisa el largo de los datos de contacto." };
   }
+  if (address.reference.length > 300) return { error: "Las referencias de entrega deben tener como máximo 300 caracteres." };
   if (!items.every(isCheckoutItem)) {
     return { error: "El carrito contiene un producto inválido. Vuelve a cargar la página." };
   }

@@ -6,7 +6,7 @@ const productFields = "*";
 const legacyProductFields = "id, slug, name, category, set_name, description, language, price_mxn, stock, image_url, is_active";
 
 function withCatalogDefaults(rows: unknown[]): Product[] {
-  return rows.map((row) => ({ compare_at_price_mxn: null, ...(row as Product) }));
+  return rows.map((row) => ({ compare_at_price_mxn: null, is_offer: false, ...(row as Product) }));
 }
 
 export function createPublicSupabaseClient() {
@@ -18,64 +18,41 @@ export function createPublicSupabaseClient() {
   });
 }
 
+async function readAllActiveProducts(supabase: NonNullable<ReturnType<typeof createPublicSupabaseClient>>, fields: string): Promise<unknown[] | null> {
+  const rows: unknown[] = [];
+  const batchSize = 500;
+  while (true) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(fields)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(rows.length, rows.length + batchSize - 1);
+    if (error) return null;
+    if (!data?.length) return rows;
+    rows.push(...data);
+  }
+}
+
 export async function getActiveProducts(): Promise<Product[] | null> {
   "use cache";
   cacheLife("minutes");
   cacheTag("products");
   const supabase = createPublicSupabaseClient();
   if (!supabase) return null;
-  const { data, error } = await supabase
-    .from("products")
-    .select(productFields)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
-  if (error) {
-    const legacy = await supabase.from("products").select(legacyProductFields).eq("is_active", true).order("created_at", { ascending: false });
-    if (legacy.error) return null;
-    return withCatalogDefaults(legacy.data ?? []);
-  }
-  return withCatalogDefaults(data ?? []);
+  const rows = await readAllActiveProducts(supabase, productFields);
+  if (rows) return withCatalogDefaults(rows);
+  const legacyRows = await readAllActiveProducts(supabase, legacyProductFields);
+  return legacyRows ? withCatalogDefaults(legacyRows) : null;
 }
 
 export async function getActiveProductBySlug(slug: string): Promise<Product | null> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("products");
-  const supabase = createPublicSupabaseClient();
-  if (!supabase) return null;
-  const { data, error } = await supabase
-    .from("products")
-    .select(productFields)
-    .eq("slug", slug)
-    .eq("is_active", true)
-    .maybeSingle();
-  if (error) {
-    const legacy = await supabase.from("products").select(legacyProductFields).eq("slug", slug).eq("is_active", true).maybeSingle();
-    if (legacy.error || !legacy.data) return null;
-    return withCatalogDefaults([legacy.data])[0];
-  }
-  if (!data) return null;
-  return withCatalogDefaults([data])[0];
+  const products = await getActiveProducts();
+  return products?.find((product) => product.slug === slug) ?? null;
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("products");
-  const supabase = createPublicSupabaseClient();
-  if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("products")
-    .select(productFields)
-    .eq("is_active", true)
-    .eq("category", product.category)
-    .neq("id", product.id)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  if (error) {
-    const legacy = await supabase.from("products").select(legacyProductFields).eq("is_active", true).eq("category", product.category).neq("id", product.id).order("created_at", { ascending: false }).limit(limit);
-    if (legacy.error) return [];
-    return withCatalogDefaults(legacy.data ?? []);
-  }
-  return withCatalogDefaults(data ?? []);
+  const products = await getActiveProducts();
+  return products?.filter((item) => item.category === product.category && item.id !== product.id).slice(0, limit) ?? [];
 }

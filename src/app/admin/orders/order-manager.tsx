@@ -4,6 +4,7 @@ import { StoreSelect } from "@/components/store-select";
 import { useActionState, useState } from "react";
 import { formatMXN, orderStatusLabels, type CustomerOrder } from "@/lib/orders";
 import { updateOrder, type OrderActionState } from "./actions";
+import { orderStatusOptions } from "@/lib/order-transitions";
 
 const statuses = ["pending_payment", "proof_submitted", "payment_confirmed", "preparing", "shipped", "cancelled"] as const;
 
@@ -13,9 +14,8 @@ export function OrderManager({ orders }: { orders: (CustomerOrder & { customer_n
   const visible = orders.filter((order) => (!status || order.status === status) && `${order.order_number} ${order.customer_name} ${order.customer_email}`.toLowerCase().includes(query.toLowerCase()));
   return <section className="admin-order-list"><div className="catalog-filter-row"><label>Buscar pedido<input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Número, cliente o correo" /></label><label>Estado<StoreSelect label="Filtrar por estado" value={status} onChange={(e) => setStatus(e.target.value)}><option value="">Todos</option>{statuses.map((value) => <option key={value} value={value}>{orderStatusLabels[value]}</option>)}</StoreSelect></label></div><div className="admin-section-title"><div><p className="admin-eyebrow">VENTAS</p><h2>Pedidos <span>({orders.length})</span></h2></div></div>
     {visible.length === 0 ? <p className="admin-empty">Aún no hay pedidos registrados.</p> : visible.map((order) => <article className="admin-order-card" key={order.id}>
-      <header className="admin-order-title"><div><h3>{order.order_number}</h3><p>{order.created_at_label}</p></div><strong>{formatMXN(Number(order.total))}</strong></header>
+      <header className="admin-order-title"><div><h3>{order.order_number}</h3><p>{order.created_at_label}</p></div><div className="admin-order-title-actions">{order.payment_proof_url && <a className="admin-proof-button" href={order.payment_proof_url} target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>Ver comprobante</a>}<strong>{formatMXN(Number(order.total))}</strong></div></header>
       <div className="admin-order-customer"><strong>{order.customer_name}</strong><a href={`mailto:${order.customer_email}`}>{order.customer_email}</a>{order.customer_phone && <span>{order.customer_phone}</span>}<p>{order.shipping_address}</p></div>
-      {order.payment_proof_url && <p className="admin-proof-link"><a href={order.payment_proof_url} target="_blank" rel="noreferrer">Revisar comprobante de pago</a></p>}
       <div className="admin-order-lines">{order.order_items.map((item, index) => <p key={`${order.id}-${index}`}><span>{item.quantity} × {item.product_name}{item.set_name ? ` · ${item.set_name}` : ""}</span><strong>{formatMXN(Number(item.line_total))}</strong></p>)}</div>
       <OrderStatusForm order={order} />
     </article>)}
@@ -26,7 +26,7 @@ function OrderStatusForm({ order }: { order: CustomerOrder }) {
   const [state, action, pending] = useActionState<OrderActionState, FormData>(updateOrder, {});
   return <form className="admin-order-form" action={action}>
     <input type="hidden" name="id" value={order.id} />
-    <label>Estado<StoreSelect label="Estado del pedido" name="status" defaultValue={order.status}>{statuses.map((status) => <option key={status} value={status}>{orderStatusLabels[status]}</option>)}</StoreSelect></label>
+    <label>Estado<StoreSelect key={order.status} label="Estado del pedido" name="status" defaultValue={order.status}>{orderStatusOptions(order.status).map((status) => <option key={status} value={status}>{orderStatusLabels[status]}</option>)}</StoreSelect></label>
     <label>Paquetería<input name="carrier" defaultValue={order.shipping_carrier ?? ""} maxLength={100} placeholder="Ej. DHL" /></label>
     <label>Número de guía<input name="trackingNumber" defaultValue={order.tracking_number ?? ""} maxLength={120} placeholder="Se requiere para marcar Enviado" /></label>
     {state.error && <p className="form-error" role="alert">{state.error}</p>}{state.message && <p className="form-notice" role="status">{state.message}</p>}{state.warning && <p className="form-error" role="status">{state.warning}</p>}

@@ -44,11 +44,7 @@ body input[type="checkbox"]:checked::before { transform: scale(1); }
 body input[type="checkbox"]:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 body input[type="checkbox"]:disabled { opacity: .45; cursor: not-allowed; }
 
-.catalog-local-search > div { align-items: center; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: #14284a; color: var(--muted); }
-.catalog-local-search > div:focus-within { border-color: var(--muted); }
-.catalog-local-search #catalog-query { flex: 1; width: 0; border: 0; outline: none; background: transparent; box-shadow: none; }
-.catalog-local-search > div > button { border: 0; padding: 4px 8px; background: transparent; font-size: 20px; }
-@media (max-width: 680px) { .search-box input, .catalog-local-search #catalog-query, .store-select > .store-select-trigger { font-size: 16px; } }
+@media (max-width: 680px) { .search-box input, .store-select > .store-select-trigger { font-size: 16px; } }
 @media (forced-colors: active) {
   body input[type="checkbox"] { appearance: auto; }
   body input[type="checkbox"]::before { display: none; }

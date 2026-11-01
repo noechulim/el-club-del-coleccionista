@@ -28,6 +28,7 @@
 .admin-notice, .admin-empty { padding: 20px; border: 1px solid var(--line); border-radius: 14px; color: var(--muted); background: rgba(8, 13, 26, .52); line-height: 1.6; }
 .admin-content { display: grid; gap: 22px; }
 .product-editor, .admin-product-list, .moon-importer { padding: clamp(18px, 3vw, 28px); border: 1px solid rgba(139, 168, 199, .17); border-radius: 18px; background: linear-gradient(145deg, rgba(20, 40, 74, .52), rgba(8, 13, 26, .76)); }
+.product-editor { scroll-margin-top: 96px; }
 .moon-importer { display: grid; gap: 14px; }
 .moon-importer .admin-section-title { margin-bottom: 0; }
 .moon-importer .admin-section-title h2 { font: var(--font-weight-bold) 25px/1.2 var(--font-impact); }
@@ -37,6 +38,7 @@
 .moon-import-label textarea:focus { border-color: var(--muted); box-shadow: 0 0 0 3px rgba(139, 168, 199, .11); }
 .moon-import-actions { display: flex; flex-wrap: wrap; gap: 9px; }
 .moon-import-errors { display: grid; gap: 6px; margin: 0; padding: 12px 14px 12px 32px; border: 1px solid rgba(235, 118, 132, .24); border-radius: 10px; color: #ffc0c7; background: rgba(128, 39, 53, .12); font-size: 12px; overflow-wrap: anywhere; }
+.moon-import-warnings { display: grid; gap: 6px; margin: 0; padding: 12px 14px 12px 32px; border: 1px solid rgba(232, 193, 92, .3); border-radius: 10px; color: #ead49b; background: rgba(117, 84, 25, .13); font-size: 12px; overflow-wrap: anywhere; }
 .moon-preview-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
 .moon-preview { min-width: 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; overflow: hidden; padding: 10px; border: 1px solid rgba(139, 168, 199, .16); border-radius: 12px; background: rgba(5, 11, 22, .48); }
 .moon-preview-image { min-height: 118px; border-radius: 8px; background-color: var(--surface); background-position: center; background-size: cover; }
@@ -48,9 +50,20 @@
 .moon-preview small { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .admin-section-title { margin-bottom: 20px; }
 .admin-section-title h2 { margin: 5px 0 0; font: var(--font-weight-bold) 25px/1.2 var(--font-impact); }
-.admin-section-title h2 span { color: var(--muted); font: var(--font-weight-regular) 13px var(--font-impact); }
+.admin-section-title h2 span { color: var(--muted); font: var(--font-weight-regular) 13px var(--font-reading); }
 .admin-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin-bottom: 18px; }
 .admin-form-grid > label { min-width: 0; display: grid; align-content: start; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.admin-number-control { min-width: 0; display: grid; align-content: start; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 600; }
+.admin-number-field { position: relative; min-width: 0; }
+.admin-number-field input { padding-right: 48px !important; appearance: textfield; -moz-appearance: textfield; }
+.admin-number-field input::-webkit-inner-spin-button,
+.admin-number-field input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.admin-number-steps { position: absolute; inset: 4px 5px 4px auto; display: grid; width: 31px; overflow: hidden; border: 1px solid rgba(139, 168, 199, .28); border-radius: 7px; background: #142541; }
+.admin-number-steps button { display: grid; place-items: center; min-width: 0; min-height: 0; padding: 0; border: 0; color: #b9d6ea; background: transparent; cursor: pointer; transition: color 140ms ease, background 140ms ease; }
+.admin-number-steps button + button { border-top: 1px solid rgba(139, 168, 199, .2); }
+.admin-number-steps button:hover:not(:disabled), .admin-number-steps button:focus-visible { color: #fff; background: rgba(124, 92, 255, .35); outline: none; }
+.admin-number-steps button:disabled { opacity: .4; cursor: not-allowed; }
+.admin-number-steps svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .admin-form-grid input:not([type="checkbox"]), .admin-form-grid select, .admin-form-grid textarea { width: 100%; min-width: 0; min-height: 43px; padding: 10px 12px; border: 1px solid rgba(139, 168, 199, .23); border-radius: 10px; outline: 0; color: var(--foreground); background: rgba(7, 13, 25, .68); }
 .admin-form-grid input[type="file"] { font-size: 12px; }
 .admin-form-grid input[type="file"]::file-selector-button { margin-right: 10px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; color: var(--foreground); background: var(--surface); }

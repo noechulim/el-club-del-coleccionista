@@ -14,7 +14,8 @@ export function SiteHeader({ searchQuery = "" }: { searchQuery?: string }) {
       <nav className="desktop-nav" aria-label="Navegación principal">
         <Link prefetch={true} href="/">Inicio</Link>
         <Link prefetch={true} href="/catalogo">Catálogo</Link>
-        <Link prefetch={true} href="/expansiones">Expansiones</Link><Link prefetch={true} href="/ofertas">Ofertas</Link>
+        <Link prefetch={true} href="/categorias/cartas-sueltas">Cartas sueltas</Link>
+        <Link prefetch={true} href="/ofertas">Ofertas</Link>
       </nav>
       <div className="header-actions">
         <Suspense fallback={<span className="search-placeholder" />}><SearchBox key={searchQuery} initialQuery={searchQuery} /></Suspense>

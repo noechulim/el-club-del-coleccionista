@@ -1,43 +1,49 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/lib/products";
-import { categoryLabels } from "@/lib/products";
+import { categoryLabels, hasPriceReduction, isOfferProduct } from "@/lib/products";
 import { categoryHref, collectionHref, productTypes } from "@/lib/catalog";
 import { useCart } from "@/lib/cart-context";
 import { useCartToast } from "@/components/cart-toast-provider";
-import { ProductGrid } from "@/components/product-grid";
+import { useHydrated } from "@/lib/use-hydrated";
 
 type DetailTab = "description" | "details" | "shipping";
 
-export function ProductDetail({ product, relatedProducts }: { product: Product; relatedProducts: Product[] }) {
+export function ProductDetail({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const [tab, setTab] = useState<DetailTab>("description");
   const { addItem, ready, items } = useCart();
+  const hydrated = useHydrated();
   const images = [...new Set([product.image_url || "/pokemon-card.jpg", ...(product.image_urls || [])].filter(Boolean))];
   const [activeImage, setActiveImage] = useState(0);
-  const lightbox = useRef<HTMLDialogElement>(null);
   const { announceAdded } = useCartToast();
   const router = useRouter();
   const available = Math.max(0, product.stock);
-  const remaining = Math.max(0, Math.min(99, available) - (items.find((item) => item.product.id === product.id)?.quantity || 0));
+  const remaining = Math.max(0, Math.min(99, available) - (hydrated ? items.find((item) => item.product.id === product.id)?.quantity || 0 : 0));
   const selectedQuantity = Math.max(1, Math.min(quantity, remaining));
-  const canBuy = ready && remaining > 0;
+  const canBuy = hydrated && ready && remaining > 0;
 
   function addToCart(goToCheckout = false) {
     if (!canBuy) return;
     addItem(product, selectedQuantity);
-    announceAdded(product.name, selectedQuantity);
+    if (!goToCheckout) announceAdded(product.name, selectedQuantity);
     if (goToCheckout) router.push("/checkout");
   }
 
-  const isSale = Number(product.compare_at_price_mxn) > Number(product.price_mxn);
-  const discount = isSale
+  const hasDiscount = hasPriceReduction(product);
+  const discount = hasDiscount
     ? Math.round((1 - Number(product.price_mxn) / Number(product.compare_at_price_mxn)) * 100)
     : 0;
+  const displayCategory = product.category === "sealed" && product.product_type && product.product_type in productTypes
+    ? productTypes[product.product_type as keyof typeof productTypes]
+    : categoryLabels[product.category];
+  const displayCategoryHref = product.category === "sealed" && product.product_type && product.product_type in productTypes
+    ? `/categorias/${product.product_type}`
+    : categoryHref(product.category);
 
   return (
     <>
@@ -45,14 +51,9 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
         {/* Galería con tamaño controlado y centrado */}
         <div className="product-gallery">
           <div className="product-frame-container">
-            <button
-              type="button"
-              onClick={() => lightbox.current?.showModal()}
-              className="product-detail-image product-zoom-trigger"
-              aria-label={"Ampliar imagen de " + product.name}
-            >
-              <span className="product-detail-tag">{categoryLabels[product.category]}</span>
-              {isSale && <span className="product-sale-badge">-{discount}%</span>}
+            <div className="product-detail-image">
+              <span className="product-detail-tag">{displayCategory}</span>
+              {isOfferProduct(product) && <span className="product-sale-badge">OFERTA</span>}
 
               {/* Contenedor de la carta con proporciones reales */}
               <div
@@ -62,16 +63,7 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                 aria-label={product.name}
               />
 
-              <span className="product-zoom-hint" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  <line x1="11" y1="8" x2="11" y2="14" />
-                  <line x1="8" y1="11" x2="14" y2="11" />
-                </svg>
-                Ampliar imagen
-              </span>
-            </button>
+            </div>
 
             {/* Miniaturas si hay múltiples imágenes */}
             {images.length > 1 && (
@@ -92,23 +84,6 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
             )}
           </div>
 
-          <dialog
-            ref={lightbox}
-            className="product-lightbox"
-            aria-label={"Imagen ampliada de " + product.name}
-            onClick={(event) => {
-              if (event.target === event.currentTarget) lightbox.current?.close();
-            }}
-          >
-            <form method="dialog">
-              <button autoFocus className="lightbox-close-btn" aria-label="Cerrar modal">
-                ✕ Cerrar
-              </button>
-            </form>
-            <div className="lightbox-image-wrap">
-              <Image unoptimized src={images[activeImage]} alt={product.name} width={1000} height={1000} />
-            </div>
-          </dialog>
         </div>
 
         {/* Panel de Compra e Información */}
@@ -123,13 +98,8 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
             </p>
             <h1 className="product-title">{product.name}</h1>
             <div className="product-meta-badges">
-              <span className="product-pill-badge">{categoryLabels[product.category]}</span>
+              <span className="product-pill-badge">{displayCategory}</span>
               <span className="product-pill-badge">{product.language}</span>
-              {product.product_type && (
-                <span className="product-pill-badge">
-                  {productTypes[product.product_type as keyof typeof productTypes] || product.product_type}
-                </span>
-              )}
             </div>
           </div>
 
@@ -140,12 +110,12 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                 ${Number(product.price_mxn).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <span className="product-currency-tag">MXN</span>
-              {isSale && (
+              {hasDiscount && (
                 <del className="product-compare-price">
                   ${Number(product.compare_at_price_mxn).toLocaleString("es-MX", { minimumFractionDigits: 2 })} MXN
                 </del>
               )}
-              {isSale && <span className="product-discount-pill">Ahorras {discount}%</span>}
+              {hasDiscount && <span className="product-discount-pill">Ahorras {discount}%</span>}
             </div>
 
             {/* Disponibilidad clara con punto verde o rojo */}
@@ -302,8 +272,8 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                   <div>
                     <dt>Categoría</dt>
                     <dd>
-                      <Link href={categoryHref(product.category)} className="spec-link">
-                        {categoryLabels[product.category]}
+                      <Link href={displayCategoryHref} className="spec-link">
+                        {displayCategory}
                       </Link>
                     </dd>
                   </div>
@@ -315,12 +285,6 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
                     <dt>Idioma</dt>
                     <dd>{product.language}</dd>
                   </div>
-                  {product.product_type && (
-                    <div>
-                      <dt>Formato</dt>
-                      <dd>{productTypes[product.product_type as keyof typeof productTypes] || product.product_type}</dd>
-                    </div>
-                  )}
                   {product.specifications && (
                     <div>
                       <dt>Detalles adicionales</dt>
@@ -341,21 +305,6 @@ export function ProductDetail({ product, relatedProducts }: { product: Product; 
         </div>
       </section>
 
-      {/* Productos Relacionados */}
-      {relatedProducts.length > 0 && (
-        <section className="product-related-section" aria-labelledby="related-products-title">
-          <div className="product-related-heading">
-            <div>
-              <p className="product-detail-eyebrow">RECOMENDACIONES</p>
-              <h2 id="related-products-title">Más para tu colección</h2>
-            </div>
-            <Link href="/catalogo" className="view-catalog-link">
-              Ver todo el catálogo <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-          <ProductGrid products={relatedProducts} showFilters={false} />
-        </section>
-      )}
     </>
   );
 }

@@ -32,8 +32,9 @@ export function MobileMenu() {
       >
         <Link prefetch={true} href="/" onClick={closeMenu}>Inicio</Link>
         <Link prefetch={true} href="/catalogo" onClick={closeMenu}>Catálogo</Link>
+        <Link prefetch={true} href="/categorias/cartas-sueltas" onClick={closeMenu}>Cartas sueltas</Link>
         <Link prefetch={true} href="/categorias" onClick={closeMenu}>Categorías</Link>
-      <Link prefetch={true} href="/expansiones" onClick={closeMenu}>Expansiones</Link><Link prefetch={true} href="/ofertas" onClick={closeMenu}>Ofertas</Link><Link prefetch={true} href="/seguimiento" onClick={closeMenu}>Rastrea tu pedido</Link><Link prefetch={true} href="/contacto" onClick={closeMenu}>Contacto</Link><Link prefetch={true} href="/cuenta" onClick={closeMenu}>Mi cuenta</Link></nav>
+      <Link prefetch={true} href="/ofertas" onClick={closeMenu}>Ofertas</Link><Link prefetch={true} href="/seguimiento" onClick={closeMenu}>Rastrea tu pedido</Link><Link prefetch={true} href="/contacto" onClick={closeMenu}>Contacto</Link><Link prefetch={true} href="/cuenta" onClick={closeMenu}>Mi cuenta</Link></nav>
     </div>
   );
 }

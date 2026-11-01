@@ -17,15 +17,16 @@ export function PaymentInstructions({
   details,
   orderNumber,
   total,
+  checkoutPreview = false,
 }: {
   details: PaymentDetails;
-  orderNumber: string;
+  orderNumber?: string;
   total: number;
+  checkoutPreview?: boolean;
 }) {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const formattedTotal = formatMXN(total);
-  const numericTotal = Number(total).toFixed(2);
 
   async function copyToClipboard(text: string, key: string) {
     try {
@@ -53,16 +54,17 @@ export function PaymentInstructions({
   const rawWa = details.whatsappNumber?.replace(/[^0-9]/g, "") || "";
   const waNumber = rawWa.length === 10 ? `52${rawWa}` : rawWa;
   const waMessage = encodeURIComponent(
-    `Hola, tengo una consulta sobre mi pedido #${orderNumber} en El Club del Coleccionista (Total: ${formattedTotal}).`
+    `Hola, tengo una consulta sobre mi pedido ${orderNumber ? `#${orderNumber}` : ""} en El Club del Coleccionista (Total: ${formattedTotal}).`
   );
   const waHref = waNumber ? `https://wa.me/${waNumber}?text=${waMessage}` : null;
 
   return (
-    <section className={`checkout-transfer modern-payment-panel${details.mode === "demo" ? " is-demo" : ""}`}>
+    <section className={`checkout-transfer modern-payment-panel${details.mode === "demo" ? " is-demo" : ""}${checkoutPreview ? " payment-checkout-preview" : ""}`}>
       <div className="payment-panel-header">
         <div>
-          <p className="cart-eyebrow">PAGO POR TRANSFERENCIA SPEI</p>
-          <h3>Instrucciones de pago</h3>
+          {!checkoutPreview && <p className="cart-eyebrow">PAGO POR TRANSFERENCIA SPEI</p>}
+          <h3>{checkoutPreview ? "Cuenta para transferir" : "Instrucciones de pago"}</h3>
+          {checkoutPreview && <p className="payment-panel-intro">Usa la CLABE indicada para pagar el total exacto de tu pedido.</p>}
         </div>
         <span className="payment-badge-secure" title="Transferencia bancaria directa">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -132,34 +134,16 @@ export function PaymentInstructions({
             </button>
           </div>
 
-          {/* Tarjeta Monto Exacto con botón Copiar */}
-          <div className="payment-data-card payment-copyable">
+          {/* Monto exacto a transferir */}
+          <div className="payment-data-card">
             <div>
               <span className="payment-data-label">Monto exacto a transferir</span>
               <strong className="payment-data-value payment-highlight">{formattedTotal}</strong>
             </div>
-            <button
-              type="button"
-              className={`payment-copy-btn ${copiedKey === "total" ? "is-copied" : ""}`}
-              onClick={() => copyToClipboard(numericTotal, "total")}
-              aria-label="Copiar Monto"
-            >
-              {copiedKey === "total" ? (
-                <>✓ Copiado</>
-              ) : (
-                <>
-                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                  Copiar
-                </>
-              )}
-            </button>
           </div>
 
           {/* Tarjeta Referencia / Concepto con botón Copiar */}
-          <div className="payment-data-card payment-copyable">
+          {orderNumber && <div className="payment-data-card payment-copyable">
             <div>
               <span className="payment-data-label">Concepto / Referencia</span>
               <strong className="payment-data-value payment-mono">{orderNumber}</strong>
@@ -182,7 +166,7 @@ export function PaymentInstructions({
                 </>
               )}
             </button>
-          </div>
+          </div>}
 
           {details.account && (
             <div className="payment-data-card">
@@ -193,12 +177,13 @@ export function PaymentInstructions({
         </div>
       ) : (
         <div className="payment-unavailable-note">
-          <p>Los datos bancarios no están disponibles en este momento. Conserva tu número de pedido <strong>{orderNumber}</strong> y contáctanos para proporcionártelos.</p>
+          <p>Los datos bancarios no están disponibles en este momento. Contacta a la tienda antes de confirmar el pedido.</p>
         </div>
       )}
 
-      {/* Soporte directo por WhatsApp */}
-      <div className="payment-support-box">
+      {checkoutPreview && <p className="payment-checkout-note">Al confirmar tu pedido podrás enviar el comprobante para que verifiquemos tu pago.</p>}
+
+      {!checkoutPreview && <div className="payment-support-box">
         <div className="payment-support-text">
           <p className="payment-support-title">¿Tienes alguna duda con tu pago?</p>
           <p className="payment-support-desc">Estamos disponibles para asistirte con tu comprobante o aclarar cualquier duda sobre tu pedido.</p>
@@ -221,7 +206,7 @@ export function PaymentInstructions({
             Contáctanos en tienda
           </Link>
         )}
-      </div>
+      </div>}
     </section>
   );
 }
