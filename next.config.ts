@@ -1,13 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: [
+    allowedDevOrigins: [
     "192.168.1.*",
     "192.168.56.*",
   ],
 
+  /* config options here */
+  cacheComponents: true,
+  partialPrefetching: true,
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -28,7 +30,6 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    cacheComponents: true, // <-- Esto soluciona los errores de "use cache" y "instant"
     serverActions: {
       bodySizeLimit: "6mb",
     },
