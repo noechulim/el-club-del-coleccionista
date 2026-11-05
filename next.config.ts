@@ -1,15 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    allowedDevOrigins: [
+  output: "export", // <-- Genera la carpeta 'out' para Cloudflare Pages
+  allowedDevOrigins: [
     "192.168.1.*",
     "192.168.56.*",
   ],
 
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
   images: {
+    unoptimized: true, // <-- Requerido para 'output: export' en Cloudflare Pages
     remotePatterns: [
       {
         protocol: "https",
@@ -45,4 +44,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
