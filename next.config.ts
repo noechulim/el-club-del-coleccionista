@@ -1,14 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export", // <-- Genera la carpeta 'out' para Cloudflare Pages
   allowedDevOrigins: [
     "192.168.1.*",
     "192.168.56.*",
   ],
 
   images: {
-    unoptimized: true, // <-- Requerido para 'output: export' en Cloudflare Pages
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -29,6 +28,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    cacheComponents: true, // <-- Esto soluciona los errores de "use cache" y "instant"
     serverActions: {
       bodySizeLimit: "6mb",
     },
